@@ -1,0 +1,27 @@
+{
+  "name": "fafl/php-recuperacion",
+  "description": "",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "nand",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "slim/slim": "^4.10",
+    "slim/psr7": "^1.5",
+    "php-di/slim-bridge": "^3.2",
+    "ext-pdo": "*",
+    "vlucas/phpdotenv": "^5.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "FAFL\\RecJunioPhp\\": "src/psr-4/"
+    },
+    "files": [
+      "src/dotenv-setup.php"
+    ]
+  }
+}

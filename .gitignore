@@ -1,0 +1,5 @@
+vendor/
+sample-project/
+.idea/
+
+.env.example
