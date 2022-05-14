@@ -1,5 +1,9 @@
 <?php
 
+// Session initialization
+session_name('recjuniophp_fabianfranco_session');
+session_start();
+
 use DI\Bridge\Slim\Bridge;
 use DI\Container;
 use FAFL\RecJunioPhp\Controller\ExampleController;
