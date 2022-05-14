@@ -21,5 +21,6 @@ $app->setBasePath("{$_ENV['APP_PUBLIC_PATH']}api");
 // Example routes
 $app->get('/hello/{name}', [ExampleController::class, 'sayHello']);
 $app->get('/bye/{name}', [ExampleController::class, 'sayGoodbye']);
+$app->get('/firstget', [ExampleController::class, 'firstGet']);
 
 $app->run();
