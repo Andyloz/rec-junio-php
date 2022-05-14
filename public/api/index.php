@@ -4,6 +4,7 @@ use DI\Bridge\Slim\Bridge;
 use DI\Container;
 use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\VendorExtend\MyResponseFactory;
+use FAFL\RecJunioPhp\VendorExtend\MyErrorHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -17,6 +18,10 @@ $container->set(ResponseFactoryInterface::class, function () {
 // App config
 $app = Bridge::create($container);
 $app->setBasePath("{$_ENV['APP_PUBLIC_PATH']}api");
+
+// Add Error Middleware
+$errorMiddleware = $app->addErrorMiddleware(true, true, true);
+$errorMiddleware->setDefaultErrorHandler(new MyErrorHandler);
 
 // Example routes
 $app->get('/hello/{name}', [ExampleController::class, 'sayHello']);
