@@ -6,10 +6,12 @@ session_start();
 
 use DI\Bridge\Slim\Bridge;
 use DI\Container;
+use FAFL\RecJunioPhp\Controller\SessionController;
 use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\VendorExtend\MyResponseFactory;
 use FAFL\RecJunioPhp\VendorExtend\MyErrorHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Slim\Routing\RouteCollectorProxy;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -34,5 +36,10 @@ $errorMiddleware->setDefaultErrorHandler(new MyErrorHandler);
 $app->get('/hello/{name}', [ExampleController::class, 'sayHello']);
 $app->get('/bye/{name}', [ExampleController::class, 'sayGoodbye']);
 $app->get('/firstget', [ExampleController::class, 'firstGet']);
+
+// Public routes
+$app->group('', function (RouteCollectorProxy $group) {
+  $group->get('/session-status', [SessionController::class, 'sessionStatus']);
+});
 
 $app->run();
