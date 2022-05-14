@@ -19,6 +19,9 @@ $container->set(ResponseFactoryInterface::class, function () {
 $app = Bridge::create($container);
 $app->setBasePath("{$_ENV['APP_PUBLIC_PATH']}api");
 
+// Add Body Parsing Middleware
+$app->addBodyParsingMiddleware();
+
 // Add Error Middleware
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $errorMiddleware->setDefaultErrorHandler(new MyErrorHandler);
