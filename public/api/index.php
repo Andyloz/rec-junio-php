@@ -11,7 +11,6 @@ use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\VendorExtend\MyResponseFactory;
 use FAFL\RecJunioPhp\VendorExtend\MyErrorHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Slim\Routing\RouteCollectorProxy;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -38,8 +37,6 @@ $app->get('/bye/{name}', [ExampleController::class, 'sayGoodbye']);
 $app->get('/firstget', [ExampleController::class, 'firstGet']);
 
 // Public routes
-$app->group('', function (RouteCollectorProxy $group) {
-  $group->get('/session-status', [SessionController::class, 'sessionStatus']);
-});
+$app->get('/session-status', [SessionController::class, 'sessionStatus']);
 
 $app->run();
