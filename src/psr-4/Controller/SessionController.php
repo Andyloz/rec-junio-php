@@ -64,4 +64,10 @@ class SessionController
 
         return $response->withJson($data);
     }
+
+    public function closeSession(MyResponse $response): ResponseInterface
+    {
+        session_destroy();
+        return $response->withJson(['msg' => 'Sesión cerrada con éxito']);
+    }
 }

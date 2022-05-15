@@ -9,9 +9,11 @@ use DI\Container;
 use FAFL\RecJunioPhp\Controller\SessionController;
 use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
+use FAFL\RecJunioPhp\Middleware\PrivateMiddleware;
 use FAFL\RecJunioPhp\VendorExtend\MyResponseFactory;
 use FAFL\RecJunioPhp\VendorExtend\MyErrorHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Slim\Routing\RouteCollectorProxy;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
@@ -42,5 +44,10 @@ $app->get('/session-status', [SessionController::class, 'sessionStatus']);
 
 // External purpose routes
 $app->post('/login', [SessionController::class, 'login'])->add(new ExternalMiddleware);
+
+// Private routes
+$app->group('', function (RouteCollectorProxy $group) {
+  $group->post('/logout', [SessionController::class, 'closeSession']);
+})->add(new PrivateMiddleware);
 
 $app->run();
