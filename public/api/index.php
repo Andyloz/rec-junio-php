@@ -8,6 +8,7 @@ use DI\Bridge\Slim\Bridge;
 use DI\Container;
 use FAFL\RecJunioPhp\Controller\SessionController;
 use FAFL\RecJunioPhp\Controller\ExampleController;
+use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
 use FAFL\RecJunioPhp\VendorExtend\MyResponseFactory;
 use FAFL\RecJunioPhp\VendorExtend\MyErrorHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -38,5 +39,8 @@ $app->get('/firstget', [ExampleController::class, 'firstGet']);
 
 // Public routes
 $app->get('/session-status', [SessionController::class, 'sessionStatus']);
+
+// External purpose routes
+$app->post('/login', [SessionController::class, 'login'])->add(new ExternalMiddleware);
 
 $app->run();
