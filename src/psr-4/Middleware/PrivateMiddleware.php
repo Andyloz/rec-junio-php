@@ -12,15 +12,14 @@ class PrivateMiddleware
 {
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
-        $response = $handler->handle($request);
-
         $permission = new Permission;
         $level = $permission->getPermissionLevel();
 
         if (array_key_exists('user', $level)) {
             $request = $request->withAttribute('level', $level);
+            $response = $handler->handle($request);
         } else {
-            return (new MyResponse())->withJson($level);
+            $response = (new MyResponse())->withJson($level);
         }
 
         return $response;

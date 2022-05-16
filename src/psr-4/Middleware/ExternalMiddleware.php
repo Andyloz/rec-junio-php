@@ -12,15 +12,14 @@ class ExternalMiddleware
 {
     public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
     {
-        $response = $handler->handle($request);
-
         $permission = new Permission;
         $level = $permission->getPermissionLevel();
 
         if (!array_key_exists('user', $level)) {
             $request = $request->withAttribute('level', $level);
+            $response = $handler->handle($request);
         } else {
-            return (new MyResponse())->withJson([
+            $response = (new MyResponse())->withJson([
                 'error' => 'Ya hay una sesión abierta'
             ]);
         }
