@@ -15,8 +15,8 @@ class Schedule
   )
   {
     // initialize array
-    for ($day = 0; $day <= 5; $day++) {
-      for ($hour = 0; $hour <= 7; $hour++) {
+    for ($day = 1; $day <= 5; $day++) {
+      for ($hour = 1; $hour <= 7; $hour++) {
         $this->scheduleRows["d$day"]["h$hour"] = [];
       }
     }
