@@ -32,7 +32,7 @@ class Validation
     return 1;
   }
 
-  private function validateString($parameter, string $name, array $constraints, array $messages): mixed
+  private function validateString($parameter, string $name, array $constraints, array $messages): array|int
   {
     if ($parameter == null || $parameter == '') return $this->checkIfRequired($name, $constraints, $messages);
 
