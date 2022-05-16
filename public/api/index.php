@@ -60,6 +60,7 @@ $app->group('', function (RouteCollectorProxy $group) {
   // Admin private routes
   $group->group('', function (RouteCollectorProxy $group) {
     $group->get('/obtain-groups-with-classroom', [DataReadController::class, 'obtainGroupsWithClassroom']);
+    $group->get('/obtain-groups-without-classroom', [DataReadController::class, 'obtainGroupsWithoutClassroom']);
   })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 

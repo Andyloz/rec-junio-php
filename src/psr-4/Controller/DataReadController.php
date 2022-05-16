@@ -33,6 +33,15 @@ class DataReadController
     return $response->withJson($data);
   }
 
+  public function obtainGroupsWithoutClassroom(MyResponse $response): ResponseInterface
+  {
+    $data = ['msg' => 'No hay grupos sin aula'];
+    $result = $this->obtainGroups("nombre REGEXP '^[G].*$' OR nombre = 'FDIR'");
+    if ($result) $data = ['groups-without-classroom' => $result];
+
+    return $response->withJson($data);
+  }
+
   private function obtainGroups(string $query): int | array
   {
     $data = 0;
