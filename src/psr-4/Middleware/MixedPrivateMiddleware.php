@@ -5,7 +5,6 @@ namespace FAFL\RecJunioPhp\Middleware;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Psr\Http\Message\ResponseInterface;
-use FAFL\RecJunioPhp\Security\Permission;
 use FAFL\RecJunioPhp\VendorExtend\MyResponse;
 use Slim\Routing\RouteContext;
 
