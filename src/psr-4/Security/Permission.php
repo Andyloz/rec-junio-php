@@ -7,7 +7,7 @@ use FAFL\RecJunioPhp\Data\Connection;
 
 class Permission
 {
-    public function getPermissionLevel(): mixed
+    public function getPermissionLevel(): array
     {
         if (isset($_SESSION['coduser']) && isset($_SESSION['password']) && isset($_SESSION['last_access'])) {
 
