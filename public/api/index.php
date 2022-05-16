@@ -9,6 +9,7 @@ use DI\Container;
 use FAFL\RecJunioPhp\Controller\DataReadController;
 use FAFL\RecJunioPhp\Controller\SessionController;
 use FAFL\RecJunioPhp\Controller\ExampleController;
+use FAFL\RecJunioPhp\Middleware\AdminPrivateMiddleware;
 use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
 use FAFL\RecJunioPhp\Middleware\MixedPrivateMiddleware;
 use FAFL\RecJunioPhp\Middleware\PrivateMiddleware;
@@ -52,10 +53,14 @@ $app->group('', function (RouteCollectorProxy $group) {
 
   $group->post('/logout', [SessionController::class, 'closeSession']);
 
-  $group->group('', function (RouteCollectorProxy $group) {
-    $group->get('/obtain-schedule/{userID}', [DataReadController::class, 'obtainSchedule']);
-  })->add(new MixedPrivateMiddleware);
+  // Mixed private routes
+  $group->get('/obtain-schedule/{userID}', [DataReadController::class, 'obtainSchedule'])
+    ->add(new MixedPrivateMiddleware);
 
+  // Admin private routes
+  $group->group('', function (RouteCollectorProxy $group) {
+    $group->get('/obtain-groups-with-classroom', [DataReadController::class, 'obtainGroupsWithClassroom']);
+  })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 
 $app->run();
