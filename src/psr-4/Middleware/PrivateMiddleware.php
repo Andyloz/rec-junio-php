@@ -19,7 +19,7 @@ class PrivateMiddleware
             $request = $request->withAttribute('level', $level);
             $response = $handler->handle($request);
         } else {
-            $response = (new MyResponse())->withJson($level);
+            $response = (new MyResponse())->withJson(['forbidden' => 'No tiene permiso para acceder a este servicio']);
         }
 
         return $response;
