@@ -20,7 +20,7 @@ class Permission
 
     $pdo = Connection::getInstance();
     $query = $pdo->prepare("SELECT * FROM usuarios WHERE id_usuario = :id");
-    $query->bindParam(':id', $_SESSION['coduser'], PDO::PARAM_INT);
+    $query->bindParam('id', $_SESSION['coduser'], PDO::PARAM_INT);
     $query->execute();
 
     // Password verification
