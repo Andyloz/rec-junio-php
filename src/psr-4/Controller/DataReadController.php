@@ -23,4 +23,34 @@ class DataReadController
 
     return $response->withJson($data);
   }
+
+  public function obtainGroupsWithClassroom(MyResponse $response): ResponseInterface
+  {
+    $data = ['msg' => 'No hay grupos con aula'];
+    $result = $this->obtainGroups("NOT nombre REGEXP '^[G].*$' AND nombre <> 'FDIR'");
+    if ($result) $data = ['groups-with-classroom' => $result];
+
+    return $response->withJson($data);
+  }
+
+  public function obtainGroupsWithoutClassroom(MyResponse $response): ResponseInterface
+  {
+    $data = ['msg' => 'No hay grupos sin aula'];
+    $result = $this->obtainGroups("nombre REGEXP '^[G].*$' OR nombre = 'FDIR'");
+    if ($result) $data = ['groups-without-classroom' => $result];
+
+    return $response->withJson($data);
+  }
+
+  private function obtainGroups(string $query): int | array
+  {
+    $data = 0;
+    $pdo = Connection::getInstance();
+    $query = $pdo->prepare("SELECT * FROM grupos WHERE $query");
+    $query->execute();
+
+    $result = $query->fetchAll();
+    if ($result) $data = $result;
+    return $data;
+  }
 }
