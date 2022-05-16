@@ -9,7 +9,7 @@ class Validation
   /**
    * @throws Exception
    */
-  public function validate(array $parameters): mixed
+  public function validate(array $parameters): int|array
   {
     foreach ($parameters as $parameter) {
 
