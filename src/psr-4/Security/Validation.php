@@ -51,20 +51,20 @@ class Validation
     return 1;
   }
 
-  private function checkIfRequired(string $name, array $constraints, array $messages)
+  private function checkIfRequired(string $name, array $constraints, array $messages): array|int
   {
-    if (array_key_exists('required', $constraints)) {
-      if ($constraints['required'] == 0) {
-        return 1;
-      } else if ($constraints['required'] == 1) {
-        $msg = 'es un parámetro requerido';
-        if (array_key_exists('msg-required', $messages)) $msg = $messages['msg-required'];
-        return ['msg' => $name . ' ' . $msg];
-      } else {
-        return 0;
-      }
-    } else {
+    if (!array_key_exists('required', $constraints)) {
       return 1;
     }
+    if ($constraints['required'] == 0) {
+      return 1;
+    }
+
+    if ($constraints['required'] != 1) {
+      return 0;
+    }
+    $msg = 'es un parámetro requerido';
+    if (array_key_exists('msg-required', $messages)) $msg = $messages['msg-required'];
+    return ['msg' => $name . ' ' . $msg];
   }
 }
