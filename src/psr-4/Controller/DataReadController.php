@@ -35,7 +35,7 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     $query->execute();
 
     $rawRows = $query->fetchAll();
-    $scheduleRows = array_map(fn($row) => new ScheduleRow(...$row), $rawRows);
+    $scheduleRows = array_map(fn ($row) => new ScheduleRow(...$row), $rawRows);
     $schedule = new Schedule($scheduleRows);
 
     return $response->withJson([
@@ -57,6 +57,18 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     $data = ['msg' => 'No hay grupos sin aula'];
     $result = $this->obtainGroups("nombre REGEXP '^[G].*$' OR nombre = 'FDIR'");
     if ($result) $data = ['groups-without-classroom' => $result];
+
+    return $response->withJson($data);
+  }
+
+  public function obtainTeachers(MyResponse $response): ResponseInterface
+  {
+    $data = ['msg' => 'No hay profesores'];
+    $pdo = Connection::getInstance();
+    $query = $pdo->prepare("SELECT id_usuario, nombre, usuario, email FROM usuarios WHERE tipo = 'normal'");
+    $query->execute();
+    $result = $query->fetchAll();
+    if ($result) $data = $result;
 
     return $response->withJson($data);
   }
