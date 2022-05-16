@@ -38,15 +38,16 @@ class SessionController
       ]
     );
 
-    if (is_array($val)) {
-      $data = $val;
-    } else {
+    $data = $val;
+
+    if (!is_array($val)) {
       $pdo = Connection::getInstance();
       $query = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :username");
       $query->bindParam(':username', $body['username'], PDO::PARAM_STR);
       $query->execute();
 
-      if ($result = $query->fetch(PDO::FETCH_ASSOC)) {
+      $result = $query->fetch();
+      if ($result) {
         if (md5($body['password']) == $result['clave']) {
           unset($result['clave']);
           $data = ['user' => $result];
