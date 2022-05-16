@@ -10,18 +10,20 @@ use FAFL\RecJunioPhp\VendorExtend\MyResponse;
 
 class PrivateMiddleware
 {
-    public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
-    {
-        $permission = new Permission;
-        $level = $permission->getPermissionLevel();
+  public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
+  {
+    $permission = new Permission;
+    $level = $permission->getPermissionLevel();
+    $response = (new MyResponse())->withJson($level);
 
-        if (array_key_exists('user', $level)) {
-            $request = $request->withAttribute('level', $level);
-            $response = $handler->handle($request);
-        } else {
-            $response = (new MyResponse())->withJson($level);
-        }
-
-        return $response;
+    if (array_key_exists('user', $level)) {
+      $request = $request->withAttribute('level', $level);
+      $response = $handler->handle($request);
     }
+
+    if (array_key_exists('not_logged', $level))
+      $response = (new MyResponse())->withJson(['forbidden' => 'No tiene permiso para acceder a este servicio']);
+
+    return $response;
+  }
 }

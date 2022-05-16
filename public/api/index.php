@@ -6,9 +6,11 @@ session_start();
 
 use DI\Bridge\Slim\Bridge;
 use DI\Container;
+use FAFL\RecJunioPhp\Controller\DataReadController;
 use FAFL\RecJunioPhp\Controller\SessionController;
 use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
+use FAFL\RecJunioPhp\Middleware\MixedPrivateMiddleware;
 use FAFL\RecJunioPhp\Middleware\PrivateMiddleware;
 use FAFL\RecJunioPhp\VendorExtend\MyResponseFactory;
 use FAFL\RecJunioPhp\VendorExtend\MyErrorHandler;
@@ -47,7 +49,13 @@ $app->post('/login', [SessionController::class, 'login'])->add(new ExternalMiddl
 
 // Private routes
 $app->group('', function (RouteCollectorProxy $group) {
+
   $group->post('/logout', [SessionController::class, 'closeSession']);
+
+  $group->group('', function (RouteCollectorProxy $group) {
+    $group->get('/obtain-schedule/{userID}', [DataReadController::class, 'obtainSchedule']);
+  })->add(new MixedPrivateMiddleware);
+
 })->add(new PrivateMiddleware);
 
 $app->run();

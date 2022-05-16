@@ -54,16 +54,9 @@ class Validation
 
   private function checkIfRequired(string $name, array $constraints, array $messages): array|int
   {
-    if (!array_key_exists('required', $constraints)) {
-      return 1;
-    }
-    if ($constraints['required'] == 0) {
-      return 1;
-    }
+    if (!array_key_exists('required', $constraints) || $constraints['required'] == 0) return 1;
+    if ($constraints['required'] != 1) return 0;
 
-    if ($constraints['required'] != 1) {
-      return 0;
-    }
     $msg = 'es un parámetro requerido';
     if (array_key_exists('msg-required', $messages)) $msg = $messages['msg-required'];
     return ['msg' => $name . ' ' . $msg];

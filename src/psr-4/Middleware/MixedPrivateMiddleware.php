@@ -7,22 +7,22 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Psr\Http\Message\ResponseInterface;
 use FAFL\RecJunioPhp\Security\Permission;
 use FAFL\RecJunioPhp\VendorExtend\MyResponse;
+use Slim\Routing\RouteContext;
 
-class ExternalMiddleware
+class MixedPrivateMiddleware
 {
   public function __invoke(Request $request, RequestHandler $handler): ResponseInterface
   {
-    $permission = new Permission;
-    $level = $permission->getPermissionLevel();
+    $level = $request->getAttribute('level');
+    $args = RouteContext::fromRequest($request)->getRoute()->getArguments();
 
-    if (!array_key_exists('user', $level)) {
+    if ($level['user']['tipo'] == 'admin' || ($level['user']['tipo'] == 'normal' && $level['user']['id_usuario'] == $args['userID'])) {
       $request = $request->withAttribute('level', $level);
       $response = $handler->handle($request);
     } else {
-      $response = (new MyResponse())->withJson([
-        'error' => 'Ya hay una sesión abierta'
-      ]);
+      $response = (new MyResponse())->withJson(['forbidden' => 'No tiene permiso para acceder a este servicio']);
     }
+
     return $response;
   }
 }
