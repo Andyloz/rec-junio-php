@@ -6,6 +6,9 @@ use Exception;
 
 class Validation
 {
+  /**
+   * @throws Exception
+   */
   public function validate(array $parameters): mixed
   {
     foreach ($parameters as $parameter) {
