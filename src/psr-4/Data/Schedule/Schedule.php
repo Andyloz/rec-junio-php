@@ -15,9 +15,9 @@ class Schedule
   )
   {
     // initialize array
-    for ($day = 0; $day <= 5; $day++) {
-      for ($hour = 0; $hour <= 7; $hour++) {
-        $this->scheduleRows[$day][$hour] = [];
+    for ($day = 1; $day <= 5; $day++) {
+      for ($hour = 1; $hour <= 7; $hour++) {
+        $this->scheduleRows["d$day"]["h$hour"] = [];
       }
     }
 
@@ -32,11 +32,17 @@ class Schedule
     foreach ($orderedScheduleRows as $day => $dayRows) {
       foreach ($dayRows as $hour => $hourRows) {
 
-        $ids = array_map(fn (ScheduleRow $r) => $r->id, $hourRows);
-        $groups = array_map(fn (ScheduleRow $r) => new Group($r->groupId, $r->groupName), $hourRows);
-        $classrooms = array_map(fn (ScheduleRow $r) => new Classroom($r->classroomId, $r->classroomName), $hourRows);
+        $ids = array_map(fn(ScheduleRow $r) => $r->id, $hourRows);
 
-        $this->scheduleRows[$day][$hour] = new ScheduleInterval(
+        $groups = array_map(fn(ScheduleRow $r) => [$r->groupId, $r->groupName], $hourRows);
+        $groups = array_unique($groups, SORT_REGULAR);
+        $groups = array_map(fn($g) => new Group(...$g), $groups);
+
+        $classrooms = array_map(fn(ScheduleRow $r) => [$r->classroomId, $r->classroomName], $hourRows);
+        $classrooms = array_unique($classrooms, SORT_REGULAR);
+        $classrooms = array_map(fn($c) => new Classroom(...$c), $classrooms);
+
+        $this->scheduleRows["d$day"]["h$hour"] = new ScheduleInterval(
           $ids,
           $hourRows[0]->userId,
           $hourRows[0]->day,
