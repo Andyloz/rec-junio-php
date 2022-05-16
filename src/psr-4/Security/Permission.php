@@ -24,7 +24,7 @@ class Permission
     $query->execute();
 
     // Password verification
-    if (!($result = $query->fetch(PDO::FETCH_ASSOC))) {
+    if (!($result = $query->fetch())) {
       return ['forbidden' => 'Zona restringida'];
     }
     if (md5($_SESSION['password']) != $result['clave']) {
