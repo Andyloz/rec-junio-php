@@ -44,7 +44,6 @@ class Schedule
 
         $this->scheduleRows["d$day"]["h$hour"] = new ScheduleInterval(
           $ids,
-          $hourRows[0]->userId,
           $hourRows[0]->day,
           $hourRows[0]->hour,
           $groups,

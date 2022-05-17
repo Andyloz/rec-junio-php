@@ -19,7 +19,6 @@ class DataReadController
     $query = $pdo->prepare("
 SELECT 
     id_horario id,
-    usuario userId, 
     dia day,
     hora hour,
     grupo groupId,

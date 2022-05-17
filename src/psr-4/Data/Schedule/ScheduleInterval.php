@@ -6,7 +6,6 @@ class ScheduleInterval
 {
   /**
    * @param int[] $ids
-   * @param int $userId
    * @param int $day
    * @param int $hour
    * @param Group[] $groups
@@ -14,7 +13,6 @@ class ScheduleInterval
    */
   public function __construct(
     public array $ids,
-    public int   $userId,
     public int   $day,
     public int   $hour,
     public array $groups,
