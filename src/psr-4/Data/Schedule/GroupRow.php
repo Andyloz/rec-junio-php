@@ -2,17 +2,17 @@
 
 namespace FAFL\RecJunioPhp\Data\Schedule;
 
-class Group
+class GroupRow
 {
   /**
    * @param int $id
    * @param string $name
-   * @param int[] $scheduleRowIds
+   * @param int $scheduleRowId
    */
   public function __construct(
     public int    $id,
     public string $name,
-    public array  $scheduleRowIds,
+    public int    $scheduleRowId,
   )
   {
   }

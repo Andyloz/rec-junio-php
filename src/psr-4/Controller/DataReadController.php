@@ -9,9 +9,11 @@ use FAFL\RecJunioPhp\VendorExtend\MyResponse;
 use Psr\Http\Message\ResponseInterface;
 use PDO;
 
+require __DIR__ . '/../../../vendor/autoload.php';
+
 class DataReadController
 {
-  public function obtainSchedule(int $userID, MyResponse $response): ResponseInterface
+  public function obtainSchedule(int $userID): Schedule
   {
     $data = ['msg' => 'El profesor ' . $userID . ' no tiene horario'];
 
@@ -34,12 +36,8 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     $query->execute();
 
     $rawRows = $query->fetchAll();
-    $scheduleRows = array_map(fn ($row) => new ScheduleRow(...$row), $rawRows);
-    $schedule = new Schedule($scheduleRows);
-
-    return $response->withJson([
-      'schedule' => $schedule,
-    ]);
+    $scheduleRows = array_map(fn($row) => new ScheduleRow(...$row), $rawRows);
+    return new Schedule($scheduleRows);
   }
 
   public function obtainTeachers(MyResponse $response): ResponseInterface
@@ -103,9 +101,20 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
       $data = $result;
     } else {
       $pdo = Connection::getInstance();
-      $query = $pdo->prepare("SELECT aulas.id_aula, aulas.nombre, horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo " .
-        "FROM aulas JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID " .
-        "AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula");
+      $query = $pdo->prepare("
+SELECT 
+    aulas.id_aula, 
+    aulas.nombre, 
+    horario_lectivo.id_horario,
+    horario_lectivo.usuario,
+    horario_lectivo.grupo 
+FROM aulas 
+    JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula 
+WHERE horario_lectivo.dia = :dayID 
+  AND horario_lectivo.hora = :hourID 
+  AND aulas.nombre <> 'Sin asignar o sin aula' 
+ORDER BY aulas.id_aula"
+      );
       $query->bindParam('dayID', $day, PDO::PARAM_INT);
       $query->bindParam('hourID', $hour, PDO::PARAM_INT);
       $query->execute();
@@ -117,7 +126,7 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     return $response->withJson($data);
   }
 
-  private function obtainGroups(string $queryString): int | array
+  private function obtainGroups(string $queryString): int|array
   {
     $data = 0;
     $pdo = Connection::getInstance();
@@ -129,7 +138,7 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     return $data;
   }
 
-  private function checkClassroomInHour(int $userID, int $day, int $hour): int | array
+  private function checkClassroomInHour(int $userID, int $day, int $hour): int|array
   {
     $data = 0;
     $pdo = Connection::getInstance();
@@ -146,3 +155,8 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     return $data;
   }
 }
+
+$a = new DataReadController();
+$b = $a->obtainSchedule(54);
+
+echo json_encode($b);
