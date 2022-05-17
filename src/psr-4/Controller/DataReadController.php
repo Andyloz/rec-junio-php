@@ -43,6 +43,18 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     ]);
   }
 
+  public function obtainTeachers(MyResponse $response): ResponseInterface
+  {
+    $data = ['msg' => 'No hay profesores'];
+    $pdo = Connection::getInstance();
+    $query = $pdo->prepare("SELECT id_usuario, nombre, usuario, email FROM usuarios WHERE tipo = 'normal'");
+    $query->execute();
+    $result = $query->fetchAll();
+    if ($result) $data = $result;
+
+    return $response->withJson($data);
+  }
+
   public function obtainGroupsWithClassroom(MyResponse $response): ResponseInterface
   {
     $data = ['msg' => 'No hay grupos con aula'];
@@ -61,23 +73,11 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     return $response->withJson($data);
   }
 
-  public function obtainTeachers(MyResponse $response): ResponseInterface
-  {
-    $data = ['msg' => 'No hay profesores'];
-    $pdo = Connection::getInstance();
-    $query = $pdo->prepare("SELECT id_usuario, nombre, usuario, email FROM usuarios WHERE tipo = 'normal'");
-    $query->execute();
-    $result = $query->fetchAll();
-    if ($result) $data = $result;
-
-    return $response->withJson($data);
-  }
-
-  private function obtainGroups(string $query): int | array
+  private function obtainGroups(string $queryString): int | array
   {
     $data = 0;
     $pdo = Connection::getInstance();
-    $query = $pdo->prepare("SELECT * FROM grupos WHERE $query");
+    $query = $pdo->prepare("SELECT * FROM grupos WHERE $queryString");
     $query->execute();
 
     $result = $query->fetchAll();
