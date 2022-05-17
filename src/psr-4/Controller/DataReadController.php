@@ -95,6 +95,29 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     return $response->withJson($data);
   }
 
+  public function obtainOccupiedClassrooms(int $userID, int $day, int $hour, MyResponse $response): ResponseInterface
+  {
+    $data = ['msg' => 'No hay aulas libres'];
+    $result = $this->checkClassroomInHour($userID, $day, $hour);
+
+    if ($result) {
+      $data = $result;
+    } else {
+      $pdo = Connection::getInstance();
+      $query = $pdo->prepare("SELECT aulas.id_aula, aulas.nombre, horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo " .
+        "FROM aulas JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID " .
+        "AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula");
+      $query->bindParam('dayID', $day, PDO::PARAM_INT);
+      $query->bindParam('hourID', $hour, PDO::PARAM_INT);
+      $query->execute();
+
+      $result = $query->fetchAll();
+      if ($result) $data = $result;
+    }
+
+    return $response->withJson($data);
+  }
+
   private function obtainGroups(string $queryString): int | array
   {
     $data = 0;

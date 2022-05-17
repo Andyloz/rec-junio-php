@@ -65,6 +65,7 @@ $app->group('', function (RouteCollectorProxy $group) {
     $group->get('/obtain-groups-without-classroom', [DataReadController::class, 'obtainGroupsWithoutClassroom']);
 
     $group->get('/obtain-free-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainFreeClassrooms']);
+    $group->get('/obtain-occupied-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainOccupiedClassrooms']);
   })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 
