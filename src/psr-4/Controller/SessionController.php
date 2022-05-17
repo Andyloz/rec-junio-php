@@ -53,8 +53,8 @@ class SessionController
           $data = ['user' => $result];
           $_SESSION['coduser'] = $result['id_usuario'];
           $_SESSION['password'] = $body['password'];
-          $_SESSION['last_access'] = time();
-          $_SESSION['inactive_time'] = 10;
+          $_SESSION['last-access'] = time();
+          $_SESSION['inactive-time'] = 10;
         } else {
           $data = ['msg' => 'La contraseña es incorrecta'];
         }

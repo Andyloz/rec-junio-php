@@ -60,8 +60,12 @@ $app->group('', function (RouteCollectorProxy $group) {
   // Admin private routes
   $group->group('', function (RouteCollectorProxy $group) {
     $group->get('/obtain-teachers', [DataReadController::class, 'obtainTeachers']);
+
     $group->get('/obtain-groups-with-classroom', [DataReadController::class, 'obtainGroupsWithClassroom']);
     $group->get('/obtain-groups-without-classroom', [DataReadController::class, 'obtainGroupsWithoutClassroom']);
+
+    $group->get('/obtain-free-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainFreeClassrooms']);
+    $group->get('/obtain-occupied-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainOccupiedClassrooms']);
   })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 
