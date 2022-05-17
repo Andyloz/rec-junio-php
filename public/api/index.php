@@ -8,6 +8,7 @@ use DI\Bridge\Slim\Bridge;
 use DI\Container;
 use FAFL\RecJunioPhp\Controller\DataReadController;
 use FAFL\RecJunioPhp\Controller\SessionController;
+use FAFL\RecJunioPhp\Controller\DataChangeController;
 use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\Middleware\AdminPrivateMiddleware;
 use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
@@ -66,6 +67,8 @@ $app->group('', function (RouteCollectorProxy $group) {
 
     $group->get('/obtain-free-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainFreeClassrooms']);
     $group->get('/obtain-occupied-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainOccupiedClassrooms']);
+
+    $group->delete('/remove-group-in-hour', [DataChangeController::class, 'removeGroupInHour']);
   })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 
