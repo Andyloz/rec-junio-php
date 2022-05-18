@@ -2,10 +2,10 @@
 
 namespace FAFL\RecJunioPhp\Data\Schedule;
 
-use FAFL\RecJunioPhp\Data\Classroom\Classroom;
-use FAFL\RecJunioPhp\Data\Classroom\ClassroomRow;
-use FAFL\RecJunioPhp\Data\Group\Group;
-use FAFL\RecJunioPhp\Data\Group\GroupRow;
+use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroom;
+use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroomRow;
+use FAFL\RecJunioPhp\Data\Group\ScheduleGroup;
+use FAFL\RecJunioPhp\Data\Group\ScheduleGroupRow;
 
 class Schedule
 {
@@ -52,30 +52,30 @@ class Schedule
 
   /**
    * @param ScheduleRow[] $rows
-   * @return Group[]
+   * @return ScheduleGroup[]
    */
   public static function buildGroupsFromScheduleRows(array $rows): array
   {
     // create group rows
-    /** @var GroupRow[] $groupRows */
+    /** @var ScheduleGroupRow[] $groupRows */
     $groupRows = [];
     foreach ($rows as $row) {
-      $groupRows[] = new GroupRow($row->groupId, $row->groupName, $row->id);
+      $groupRows[] = new ScheduleGroupRow($row->groupId, $row->groupName, $row->id);
     }
 
     // group group-rows by id
-    /** @var GroupRow $groupRowsById */
+    /** @var ScheduleGroupRow $groupRowsById */
     $groupRowsById = [];
     foreach ($groupRows as $groupRow) {
       $groupRowsById[$groupRow->id][] = $groupRow;
     }
 
     // create group objects
-    /** @var Group[] $groups */
+    /** @var ScheduleGroup[] $groups */
     $groups = [];
     foreach ($groupRowsById as $groupId => $groupRows) {
       $ids = array_map(fn($gr) => $gr->scheduleRowId, $groupRows);
-      $groups[] = new Group(
+      $groups[] = new ScheduleGroup(
         $groupId,
         $groupRows[0]->name,
         $ids
@@ -87,30 +87,30 @@ class Schedule
 
   /**
    * @param ScheduleRow[] $rows
-   * @return Classroom[]
+   * @return ScheduleClassroom[]
    */
   public static function buildClassroomsFromScheduleRows(array $rows): array
   {
     // create classroom rows
-    /** @var ClassroomRow[] $classroomRows */
+    /** @var ScheduleClassroomRow[] $classroomRows */
     $classroomRows = [];
     foreach ($rows as $row) {
-      $classroomRows[] = new ClassroomRow($row->classroomId, $row->classroomName, $row->id);
+      $classroomRows[] = new ScheduleClassroomRow($row->classroomId, $row->classroomName, $row->id);
     }
 
     // group classroom-rows by id
-    /** @var ClassroomRow $classroomRowsById */
+    /** @var ScheduleClassroomRow $classroomRowsById */
     $classroomRowsById = [];
     foreach ($classroomRows as $classroomRow) {
       $classroomRowsById[$classroomRow->id][] = $classroomRow;
     }
 
     // create classroom objects
-    /** @var Classroom[] $classrooms */
+    /** @var ScheduleClassroom[] $classrooms */
     $classrooms = [];
     foreach ($classroomRowsById as $classroomId => $classroomRows) {
       $ids = array_map(fn($cr) => $cr->scheduleRowId, $classroomRows);
-      $classrooms[] = new Classroom(
+      $classrooms[] = new ScheduleClassroom(
         $classroomId,
         $classroomRows[0]->name,
         $ids

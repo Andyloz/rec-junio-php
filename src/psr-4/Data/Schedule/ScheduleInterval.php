@@ -2,16 +2,16 @@
 
 namespace FAFL\RecJunioPhp\Data\Schedule;
 
-use FAFL\RecJunioPhp\Data\Classroom\Classroom;
-use FAFL\RecJunioPhp\Data\Group\Group;
+use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroom;
+use FAFL\RecJunioPhp\Data\Group\ScheduleGroup;
 
 class ScheduleInterval
 {
   /**
    * @param int $day
    * @param int $hour
-   * @param Group[] $groups
-   * @param Classroom[] $classrooms
+   * @param ScheduleGroup[] $groups
+   * @param ScheduleClassroom[] $classrooms
    */
   public function __construct(
     public int   $day,
