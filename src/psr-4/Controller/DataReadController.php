@@ -24,17 +24,23 @@ class DataReadController
     $data = $val;
 
     if (!is_array($val)) {
-      $pdo = Connection::getInstance();
-      $query = $pdo->prepare("SELECT id_horario id, usuario userId, dia day, hora hour, grupo groupId, g.nombre groupName, aula classroomId, a.nombre classroomName " .
-        "FROM horario_lectivo JOIN aulas a ON a.id_aula = horario_lectivo.aula JOIN grupos g ON g.id_grupo = horario_lectivo.grupo WHERE usuario = :username AND dia " .
-        "BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7");
-      $query->bindParam('username', $userID, PDO::PARAM_INT);
-      $query->execute();
 
-      $rawRows = $query->fetchAll();
-      $scheduleRows = array_map(fn ($row) => new ScheduleRow(...$row), $rawRows);
-      $schedule = new Schedule($scheduleRows);
-      $data = ['schedule' => $schedule];
+      $data = ['msg' => 'El profesor no existe'];
+      $result = $this->checkIfUserExists($userID);
+
+      if ($result) {
+        $pdo = Connection::getInstance();
+        $query = $pdo->prepare("SELECT id_horario id, usuario userId, dia day, hora hour, grupo groupId, g.nombre groupName, aula classroomId, a.nombre classroomName " .
+          "FROM horario_lectivo JOIN aulas a ON a.id_aula = horario_lectivo.aula JOIN grupos g ON g.id_grupo = horario_lectivo.grupo WHERE usuario = :username AND dia " .
+          "BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7");
+        $query->bindParam('username', $userID, PDO::PARAM_INT);
+        $query->execute();
+
+        $rawRows = $query->fetchAll();
+        $scheduleRows = array_map(fn ($row) => new ScheduleRow(...$row), $rawRows);
+        $schedule = new Schedule($scheduleRows);
+        $data = ['schedule' => $schedule];
+      }
     }
     return $response->withJson($data);
   }
@@ -75,21 +81,27 @@ class DataReadController
     $data = $val;
 
     if (!is_array($val)) {
-      $data = ['msg' => 'No hay aulas libres'];
-      $result = $this->checkClassroomInHour($userID, $day, $hour);
+
+      $data = ['msg' => 'El profesor no existe'];
+      $result = $this->checkIfUserExists($userID);
 
       if ($result) {
-        $data = $result;
-      } else {
-        $pdo = Connection::getInstance();
-        $query = $pdo->prepare("SELECT id_aula, nombre FROM aulas WHERE id_aula NOT IN (SELECT DISTINCT aulas.id_aula FROM aulas JOIN horario_lectivo " .
-          "ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula)");
-        $query->bindParam('dayID', $day, PDO::PARAM_INT);
-        $query->bindParam('hourID', $hour, PDO::PARAM_INT);
-        $query->execute();
+        $data = ['msg' => 'No hay aulas libres'];
+        $result = $this->checkClassroomInHour($userID, $day, $hour);
 
-        $result = $query->fetchAll();
-        if ($result) $data = $result;
+        if ($result) {
+          $data = $result;
+        } else {
+          $pdo = Connection::getInstance();
+          $query = $pdo->prepare("SELECT id_aula, nombre FROM aulas WHERE id_aula NOT IN (SELECT DISTINCT aulas.id_aula FROM aulas JOIN horario_lectivo " .
+            "ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula)");
+          $query->bindParam('dayID', $day, PDO::PARAM_INT);
+          $query->bindParam('hourID', $hour, PDO::PARAM_INT);
+          $query->execute();
+
+          $result = $query->fetchAll();
+          if ($result) $data = $result;
+        }
       }
     }
     return $response->withJson($data);
@@ -101,28 +113,34 @@ class DataReadController
     $data = $val;
 
     if (!is_array($val)) {
-      $data = ['msg' => 'No hay aulas libres'];
-      $result = $this->checkClassroomInHour($userID, $day, $hour);
+      
+      $data = ['msg' => 'El profesor no existe'];
+      $result = $this->checkIfUserExists($userID);
 
       if ($result) {
-        $data = $result;
-      } else {
-        $pdo = Connection::getInstance();
-        $query = $pdo->prepare("SELECT aulas.id_aula, aulas.nombre, horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo " .
-          "FROM aulas JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID " .
-          "AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula");
-        $query->bindParam('dayID', $day, PDO::PARAM_INT);
-        $query->bindParam('hourID', $hour, PDO::PARAM_INT);
-        $query->execute();
+        $data = ['msg' => 'No hay aulas libres'];
+        $result = $this->checkClassroomInHour($userID, $day, $hour);
 
-        $result = $query->fetchAll();
-        if ($result) $data = $result;
+        if ($result) {
+          $data = $result;
+        } else {
+          $pdo = Connection::getInstance();
+          $query = $pdo->prepare("SELECT aulas.id_aula, aulas.nombre, horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo " .
+            "FROM aulas JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID " .
+            "AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula");
+          $query->bindParam('dayID', $day, PDO::PARAM_INT);
+          $query->bindParam('hourID', $hour, PDO::PARAM_INT);
+          $query->execute();
+
+          $result = $query->fetchAll();
+          if ($result) $data = $result;
+        }
       }
     }
     return $response->withJson($data);
   }
 
-  private function obtainGroups(string $queryString): int | array
+  private function obtainGroups(string $queryString): int|array
   {
     $data = 0;
     $pdo = Connection::getInstance();
@@ -134,7 +152,7 @@ class DataReadController
     return $data;
   }
 
-  private function validateObtainClassroomArguments($userID, $day, $hour)
+  private function validateObtainClassroomArguments($userID, $day, $hour): int|array
   {
     $validation = new Validation();
     return $validation->validate([
@@ -153,7 +171,20 @@ class DataReadController
     ]);
   }
 
-  private function checkClassroomInHour(int $userID, int $day, int $hour): int | array
+  private function checkIfUserExists($userID): int|array
+  {
+    $data = 0;
+    $pdo = Connection::getInstance();
+    $query = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = :userID");
+    $query->bindParam('userID', $userID, PDO::PARAM_INT);
+    $query->execute();
+
+    $result = $query->fetch();
+    if ($result) $data = $result;
+    return $data;
+  }
+
+  private function checkClassroomInHour(int $userID, int $day, int $hour): int|array
   {
     $data = 0;
     $pdo = Connection::getInstance();
