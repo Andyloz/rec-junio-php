@@ -2,9 +2,12 @@
 
 namespace FAFL\RecJunioPhp\Controller;
 
+use FAFL\RecJunioPhp\Data\Classroom\OccupiedClassroom;
 use FAFL\RecJunioPhp\Data\Connection;
+use FAFL\RecJunioPhp\Data\Group\Group;
 use FAFL\RecJunioPhp\Data\Schedule\Schedule;
 use FAFL\RecJunioPhp\Data\Schedule\ScheduleRow;
+use FAFL\RecJunioPhp\Data\User\User;
 use FAFL\RecJunioPhp\VendorExtend\MyResponse;
 use Psr\Http\Message\ResponseInterface;
 use PDO;
@@ -100,9 +103,9 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
 
   public function obtainOccupiedClassrooms(int $userID, int $day, int $hour, MyResponse $response): ResponseInterface
   {
-    $result = $this->checkClassroomInHour($userID, $day, $hour);
-    if ($result) {
-      return $response->withJson($result);
+    $rows = $this->checkClassroomInHour($userID, $day, $hour);
+    if ($rows) {
+      return $response->withJson($rows);
     }
 
     $pdo = Connection::getInstance();
@@ -128,12 +131,35 @@ ORDER BY id"
     $query->bindParam('hourID', $hour, PDO::PARAM_INT);
     $query->execute();
 
-    $result = $query->fetchAll();
-    if (!$result) {
+    $rows = $query->fetchAll();
+    if (!$rows) {
       return $response->withJson(['msg' => 'No hay aulas libres']);
     }
+    
+    // group rows by id
+    $rowsById = [];
+    foreach ($rows as $row) {
+      $rowsById[$row['id']][] = $row;
+    }
 
-    return $response;
+    // make OccupiedClassrooms from grouped rows
+    $occupiedClassrooms = [];
+    foreach ($rowsById as $id => $rows) {
+      $oc = new OccupiedClassroom($id, $rows[0]['name'], [], [], []);
+
+      foreach ($rows as $row) {
+        $oc->scheduleRowIds[] = $row['scheduleRowId'];
+        $oc->groups[] = new Group($row['groupId'], $row['groupName']);
+        $oc->users[] = new User($row['userId'], $row['userName']);
+      }
+      $oc->scheduleRowIds = array_unique($oc->scheduleRowIds);
+      $oc->groups = array_unique($oc->groups, SORT_REGULAR);
+      $oc->users = array_unique($oc->users, SORT_REGULAR);
+
+      $occupiedClassrooms[] = $oc;
+    }
+
+    return $response->withJson($occupiedClassrooms);
   }
 
   private function obtainGroups(string $queryString): int|array
