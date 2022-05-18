@@ -2,7 +2,7 @@
 
 namespace FAFL\RecJunioPhp\Data\Schedule;
 
-use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroom;
+use FAFL\RecJunioPhp\Data\Classroom\ClassroomClassroom;
 use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroomRow;
 use FAFL\RecJunioPhp\Data\Group\ScheduleGroup;
 use FAFL\RecJunioPhp\Data\Group\ScheduleGroupRow;
@@ -87,7 +87,7 @@ class Schedule
 
   /**
    * @param ScheduleRow[] $rows
-   * @return ScheduleClassroom[]
+   * @return ClassroomClassroom[]
    */
   public static function buildClassroomsFromScheduleRows(array $rows): array
   {
@@ -106,11 +106,11 @@ class Schedule
     }
 
     // create classroom objects
-    /** @var ScheduleClassroom[] $classrooms */
+    /** @var ClassroomClassroom[] $classrooms */
     $classrooms = [];
     foreach ($classroomRowsById as $classroomId => $classroomRows) {
       $ids = array_map(fn($cr) => $cr->scheduleRowId, $classroomRows);
-      $classrooms[] = new ScheduleClassroom(
+      $classrooms[] = new ClassroomClassroom(
         $classroomId,
         $classroomRows[0]->name,
         $ids

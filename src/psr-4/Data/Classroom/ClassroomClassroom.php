@@ -2,7 +2,7 @@
 
 namespace FAFL\RecJunioPhp\Data\Classroom;
 
-class ScheduleClassroom
+class ClassroomClassroom extends Classroom
 {
   /**
    * @param int $id
@@ -10,10 +10,11 @@ class ScheduleClassroom
    * @param int[] $scheduleRowIds
    */
   public function __construct(
-    public int    $id,
-    public string $name,
-    public array  $scheduleRowIds,
+    int          $id,
+    string       $name,
+    public array $scheduleRowIds,
   )
   {
+    parent::__construct($id, $name);
   }
 }
