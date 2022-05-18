@@ -13,10 +13,18 @@ class DataChangeController
 {
   public function removeGroupInHour(Request $request, MyResponse $response): ResponseInterface
   {
-    $data = ['msg' => 'El código de horario lectivo es un parámetro obligatorio'];
     $body = $request->getParsedBody();
 
-    if (is_array($body) && array_key_exists('id-schedule', $body)) {
+    $validation = new Validation();
+    $val = $validation->validate([
+      [
+        'value' => $body['id-schedule'], 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
+      ]
+    ]);
+    $data = $val;
+
+    if (!is_array($val)) {
 
       $pdo = Connection::getInstance();
 
@@ -37,18 +45,16 @@ class DataChangeController
     $body = $request->getParsedBody();
 
     $validation = new Validation();
-    $val = $validation->validate(
+    $val = $validation->validate([
       [
-        [
-          'value' => $body['id-schedule'], 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
-          'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
-        ],
-        [
-          'value' => $body['id-classroom'], 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
-          'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
-        ]
+        'value' => $body['id-schedule'], 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
+      ],
+      [
+        'value' => $body['id-classroom'], 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ]
-    );
+    ]);
 
     $data = $val;
 
