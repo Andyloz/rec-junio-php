@@ -121,6 +121,24 @@ WHERE horario_lectivo.dia = :dayID
   AND aulas.nombre <> 'Sin asignar o sin aula' 
 ORDER BY aulas.id_aula"
       );
+      $query = $pdo->prepare("
+SELECT
+    a.id_aula id, 
+    a.nombre name,
+    hl.id_horario scheduleRowId,
+    g.id_grupo groupId, 
+    g.nombre groupName,
+    u.id_usuario userId,
+    u.nombre userName
+FROM aulas a
+JOIN horario_lectivo hl ON a.id_aula = hl.aula
+JOIN grupos g ON g.id_grupo = hl.grupo
+JOIN usuarios u ON u.id_usuario = hl.usuario
+WHERE hl.dia = :dayID 
+  AND hl.hora = :hourID 
+  AND a.nombre <> 'Sin asignar o sin aula' 
+ORDER BY a.id_aula"
+      );
       $query->bindParam('dayID', $day, PDO::PARAM_INT);
       $query->bindParam('hourID', $hour, PDO::PARAM_INT);
       $query->execute();
