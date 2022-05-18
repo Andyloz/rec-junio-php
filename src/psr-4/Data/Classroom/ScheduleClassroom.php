@@ -2,7 +2,7 @@
 
 namespace FAFL\RecJunioPhp\Data\Classroom;
 
-class ClassroomClassroom extends Classroom
+class ScheduleClassroom extends Classroom
 {
   /**
    * @param int $id
