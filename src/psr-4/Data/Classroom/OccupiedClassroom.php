@@ -5,7 +5,7 @@ namespace FAFL\RecJunioPhp\Data\Classroom;
 use FAFL\RecJunioPhp\Data\Group\Group;
 use FAFL\RecJunioPhp\Data\User\User;
 
-class OccupiedClassroom extends ScheduleClassroom
+class OccupiedClassroom extends Classroom
 {
   /**
    * @param int $id
@@ -17,11 +17,11 @@ class OccupiedClassroom extends ScheduleClassroom
   public function __construct(
     int          $id,
     string       $name,
-    array        $scheduleRowIds,
+    public array $scheduleRowIds,
     public array $groups,
     public array $users,
   )
   {
-    parent::__construct($id, $name, $scheduleRowIds);
+    parent::__construct($id, $name);
   }
 }
