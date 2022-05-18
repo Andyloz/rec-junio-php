@@ -9,14 +9,10 @@ use FAFL\RecJunioPhp\VendorExtend\MyResponse;
 use Psr\Http\Message\ResponseInterface;
 use PDO;
 
-require __DIR__ . '/../../../vendor/autoload.php';
-
 class DataReadController
 {
-  public function obtainSchedule(int $userID): Schedule
+  public function obtainSchedule(int $userID, MyResponse $response): ResponseInterface
   {
-    $data = ['msg' => 'El profesor ' . $userID . ' no tiene horario'];
-
     $pdo = Connection::getInstance();
     $query = $pdo->prepare("
 SELECT 
@@ -36,8 +32,18 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     $query->execute();
 
     $rawRows = $query->fetchAll();
-    $scheduleRows = array_map(fn($row) => new ScheduleRow(...$row), $rawRows);
-    return new Schedule($scheduleRows);
+    if (empty($rawRows)) {
+      return $response->withJson([
+        'msg' => 'El profesor ' . $userID . ' no tiene horario'
+      ]);
+    }
+
+    $scheduleRows = array_map(fn ($row) => new ScheduleRow(...$row), $rawRows);
+    $schedule = new Schedule($scheduleRows);
+
+    return $response->withJson([
+      'schedule' => $schedule,
+    ]);
   }
 
   public function obtainTeachers(MyResponse $response): ResponseInterface
@@ -126,7 +132,7 @@ ORDER BY aulas.id_aula"
     return $response->withJson($data);
   }
 
-  private function obtainGroups(string $queryString): int|array
+  private function obtainGroups(string $queryString): int | array
   {
     $data = 0;
     $pdo = Connection::getInstance();
@@ -138,7 +144,7 @@ ORDER BY aulas.id_aula"
     return $data;
   }
 
-  private function checkClassroomInHour(int $userID, int $day, int $hour): int|array
+  private function checkClassroomInHour(int $userID, int $day, int $hour): int | array
   {
     $data = 0;
     $pdo = Connection::getInstance();
@@ -155,8 +161,3 @@ ORDER BY aulas.id_aula"
     return $data;
   }
 }
-
-$a = new DataReadController();
-$b = $a->obtainSchedule(54);
-
-echo json_encode($b);
