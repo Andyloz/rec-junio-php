@@ -108,20 +108,6 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
     } else {
       $pdo = Connection::getInstance();
       $query = $pdo->prepare("
-SELECT 
-    aulas.id_aula, 
-    aulas.nombre, 
-    horario_lectivo.id_horario,
-    horario_lectivo.usuario,
-    horario_lectivo.grupo 
-FROM aulas 
-    JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula 
-WHERE horario_lectivo.dia = :dayID 
-  AND horario_lectivo.hora = :hourID 
-  AND aulas.nombre <> 'Sin asignar o sin aula' 
-ORDER BY aulas.id_aula"
-      );
-      $query = $pdo->prepare("
 SELECT
     a.id_aula id, 
     a.nombre name,
@@ -137,7 +123,7 @@ JOIN usuarios u ON u.id_usuario = hl.usuario
 WHERE hl.dia = :dayID 
   AND hl.hora = :hourID 
   AND a.nombre <> 'Sin asignar o sin aula' 
-ORDER BY a.id_aula"
+ORDER BY id"
       );
       $query->bindParam('dayID', $day, PDO::PARAM_INT);
       $query->bindParam('hourID', $hour, PDO::PARAM_INT);
