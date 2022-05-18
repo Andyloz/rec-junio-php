@@ -2,6 +2,11 @@
 
 namespace FAFL\RecJunioPhp\Data\Schedule;
 
+use FAFL\RecJunioPhp\Data\Classroom\Classroom;
+use FAFL\RecJunioPhp\Data\Classroom\ClassroomRow;
+use FAFL\RecJunioPhp\Data\Group\Group;
+use FAFL\RecJunioPhp\Data\Group\GroupRow;
+
 class Schedule
 {
   /** @var ScheduleInterval[][] */

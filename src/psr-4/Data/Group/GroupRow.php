@@ -1,8 +1,8 @@
 <?php
 
-namespace FAFL\RecJunioPhp\Data\Schedule;
+namespace FAFL\RecJunioPhp\Data\Group;
 
-class ClassroomRow
+class GroupRow
 {
   /**
    * @param int $id
