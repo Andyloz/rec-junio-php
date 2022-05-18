@@ -38,7 +38,7 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
       ]);
     }
 
-    $scheduleRows = array_map(fn ($row) => new ScheduleRow(...$row), $rawRows);
+    $scheduleRows = array_map(fn($row) => new ScheduleRow(...$row), $rawRows);
     $schedule = new Schedule($scheduleRows);
 
     return $response->withJson([
@@ -100,14 +100,13 @@ WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7
 
   public function obtainOccupiedClassrooms(int $userID, int $day, int $hour, MyResponse $response): ResponseInterface
   {
-    $data = ['msg' => 'No hay aulas libres'];
     $result = $this->checkClassroomInHour($userID, $day, $hour);
-
     if ($result) {
-      $data = $result;
-    } else {
-      $pdo = Connection::getInstance();
-      $query = $pdo->prepare("
+      return $response->withJson($result);
+    }
+
+    $pdo = Connection::getInstance();
+    $query = $pdo->prepare("
 SELECT
     a.id_aula id, 
     a.nombre name,
@@ -124,19 +123,20 @@ WHERE hl.dia = :dayID
   AND hl.hora = :hourID 
   AND a.nombre <> 'Sin asignar o sin aula' 
 ORDER BY id"
-      );
-      $query->bindParam('dayID', $day, PDO::PARAM_INT);
-      $query->bindParam('hourID', $hour, PDO::PARAM_INT);
-      $query->execute();
+    );
+    $query->bindParam('dayID', $day, PDO::PARAM_INT);
+    $query->bindParam('hourID', $hour, PDO::PARAM_INT);
+    $query->execute();
 
-      $result = $query->fetchAll();
-      if ($result) $data = $result;
+    $result = $query->fetchAll();
+    if (!$result) {
+      return $response->withJson(['msg' => 'No hay aulas libres']);
     }
 
-    return $response->withJson($data);
+    return $response;
   }
 
-  private function obtainGroups(string $queryString): int | array
+  private function obtainGroups(string $queryString): int|array
   {
     $data = 0;
     $pdo = Connection::getInstance();
@@ -148,7 +148,7 @@ ORDER BY id"
     return $data;
   }
 
-  private function checkClassroomInHour(int $userID, int $day, int $hour): int | array
+  private function checkClassroomInHour(int $userID, int $day, int $hour): int|array
   {
     $data = 0;
     $pdo = Connection::getInstance();
