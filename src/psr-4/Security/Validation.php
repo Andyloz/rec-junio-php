@@ -19,7 +19,6 @@ class Validation
         if (!array_key_exists('constraints', $parameter)) $parameter['constraints'] = [];
         if (!array_key_exists('messages', $parameter)) $parameter['messages'] = [];
 
-        /** @noinspection PhpSwitchStatementWitSingleBranchInspection */
         switch ($parameter['type']) {
           case 'string':
             $val = $this->validateString($parameter['value'], $parameter['name'], $parameter['constraints'], $parameter['messages']);
