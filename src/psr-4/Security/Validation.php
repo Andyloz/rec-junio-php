@@ -24,6 +24,9 @@ class Validation
           case 'string':
             $val = $this->validateString($parameter['value'], $parameter['name'], $parameter['constraints'], $parameter['messages']);
             break;
+          case 'int':
+            $val = $this->validateInt($parameter['value'], $parameter['name'], $parameter['constraints'], $parameter['messages']);
+            break;
         }
       }
 
@@ -46,6 +49,31 @@ class Validation
     if (array_key_exists('max-len', $constraints) && strlen($parameter) > $constraints['max-len']) {
       $msg = 'debe tener como máximo ' . $constraints['max-len'] . ' caracteres';
       if (array_key_exists('msg-max-len', $messages)) $msg = $messages['msg-max-len'];
+      return ['msg' => $name . ' ' . $msg];
+    }
+
+    return 1;
+  }
+
+  private function validateInt($parameter, string $name, array $constraints, array $messages): array|int
+  {
+    if ($parameter === null) return $this->checkIfRequired($name, $constraints, $messages);
+
+    if (!is_numeric($parameter)) {
+      $msg = 'debe ser un valor numérico';
+      if (array_key_exists('msg-not-int', $messages)) $msg = $messages['msg-not int'];
+      return ['msg' => $name . ' ' . $msg];
+    }
+
+    if (array_key_exists('min-val', $constraints) && $parameter < $constraints['min-val']) {
+      $msg = 'debe ser igual o mayor que ' . $constraints['min-val'];
+      if (array_key_exists('msg-min-val', $messages)) $msg = $messages['msg-min-val'];
+      return ['msg' => $name . ' ' . $msg];
+    }
+
+    if (array_key_exists('max-val', $constraints) && $parameter > $constraints['max-val']) {
+      $msg = 'debe ser igual o menor que ' . $constraints['max-val'];
+      if (array_key_exists('msg-max-val', $messages)) $msg = $messages['msg-max-val'];
       return ['msg' => $name . ' ' . $msg];
     }
 
