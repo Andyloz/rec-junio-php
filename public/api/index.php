@@ -9,7 +9,6 @@ use DI\Container;
 use FAFL\RecJunioPhp\Controller\DataReadController;
 use FAFL\RecJunioPhp\Controller\SessionController;
 use FAFL\RecJunioPhp\Controller\DataChangeController;
-use FAFL\RecJunioPhp\Controller\ExampleController;
 use FAFL\RecJunioPhp\Middleware\AdminPrivateMiddleware;
 use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
 use FAFL\RecJunioPhp\Middleware\MixedPrivateMiddleware;
@@ -37,11 +36,6 @@ $app->addBodyParsingMiddleware();
 // Add Error Middleware
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $errorMiddleware->setDefaultErrorHandler(new MyErrorHandler);
-
-// Example routes
-$app->get('/hello/{name}', [ExampleController::class, 'sayHello']);
-$app->get('/bye/{name}', [ExampleController::class, 'sayGoodbye']);
-$app->get('/firstget', [ExampleController::class, 'firstGet']);
 
 // Public routes
 $app->get('/session-status', [SessionController::class, 'sessionStatus']);
