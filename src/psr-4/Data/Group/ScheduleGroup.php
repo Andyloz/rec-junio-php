@@ -17,13 +17,4 @@ class ScheduleGroup extends Group
   {
     parent::__construct($id, $name);
   }
-
-  public static function buildFromGroup(Group $group, int ...$scheduleRowIds): self
-  {
-    return new self(
-      $group->id,
-      $group->name,
-      $scheduleRowIds,
-    );
-  }
 }

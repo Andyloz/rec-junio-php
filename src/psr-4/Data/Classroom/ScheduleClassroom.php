@@ -17,13 +17,4 @@ class ScheduleClassroom extends Classroom
   {
     parent::__construct($id, $name);
   }
-
-  public static function buildFromClassroom(Classroom $classroom, int ...$scheduleRowIds): self
-  {
-    return new self(
-      $classroom->id,
-      $classroom->name,
-      $scheduleRowIds,
-    );
-  }
 }
