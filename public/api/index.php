@@ -8,7 +8,7 @@ use DI\Bridge\Slim\Bridge;
 use DI\Container;
 use FAFL\RecJunioPhp\Controller\DataReadController;
 use FAFL\RecJunioPhp\Controller\SessionController;
-use FAFL\RecJunioPhp\Controller\ExampleController;
+use FAFL\RecJunioPhp\Controller\DataChangeController;
 use FAFL\RecJunioPhp\Middleware\AdminPrivateMiddleware;
 use FAFL\RecJunioPhp\Middleware\ExternalMiddleware;
 use FAFL\RecJunioPhp\Middleware\MixedPrivateMiddleware;
@@ -37,11 +37,6 @@ $app->addBodyParsingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(true, true, true);
 $errorMiddleware->setDefaultErrorHandler(new MyErrorHandler);
 
-// Example routes
-$app->get('/hello/{name}', [ExampleController::class, 'sayHello']);
-$app->get('/bye/{name}', [ExampleController::class, 'sayGoodbye']);
-$app->get('/firstget', [ExampleController::class, 'firstGet']);
-
 // Public routes
 $app->get('/session-status', [SessionController::class, 'sessionStatus']);
 
@@ -66,6 +61,10 @@ $app->group('', function (RouteCollectorProxy $group) {
 
     $group->get('/obtain-free-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainFreeClassrooms']);
     $group->get('/obtain-occupied-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainOccupiedClassrooms']);
+
+    $group->delete('/remove-group-in-hour', [DataChangeController::class, 'removeGroupInHour']);
+
+    $group->put('/edit-classroom-in-hour', [DataChangeController::class, 'editClassroomInHour']);
   })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 

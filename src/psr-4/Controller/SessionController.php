@@ -25,18 +25,16 @@ class SessionController
     $body['username'] = trim($body['username']);
 
     $validation = new Validation();
-    $val = $validation->validate(
+    $val = $validation->validate([
       [
-        [
-          'value' => $body['username'], 'name' => 'El nombre de usuario', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 20],
-          'messages' => ['msg-required' => 'es un campo requerido', 'msg-max-len' => 'no se encuentra registrado']
-        ],
-        [
-          'value' => $body['password'], 'name' => 'La contraseña', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 50],
-          'messages' => ['msg-required' => 'es un campo requerido']
-        ]
+        'value' => $body['username'], 'name' => 'El nombre de usuario', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 20],
+        'messages' => ['msg-required' => 'es un campo requerido', 'msg-max-len' => 'no se encuentra registrado']
+      ],
+      [
+        'value' => $body['password'], 'name' => 'La contraseña', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 50],
+        'messages' => ['msg-required' => 'es un campo requerido']
       ]
-    );
+    ]);
 
     $data = $val;
 
