@@ -1,8 +1,8 @@
 <?php
 
-namespace FAFL\RecJunioPhp\Data\Schedule;
+namespace FAFL\RecJunioPhp\Data\Group;
 
-class Group
+class ScheduleGroup extends Group
 {
   /**
    * @param int $id
@@ -10,10 +10,11 @@ class Group
    * @param int[] $scheduleRowIds
    */
   public function __construct(
-    public int    $id,
-    public string $name,
+    int    $id,
+    string $name,
     public array  $scheduleRowIds,
   )
   {
+    parent::__construct($id, $name);
   }
 }

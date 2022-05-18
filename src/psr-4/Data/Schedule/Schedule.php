@@ -2,6 +2,9 @@
 
 namespace FAFL\RecJunioPhp\Data\Schedule;
 
+use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroom;
+use FAFL\RecJunioPhp\Data\Group\ScheduleGroup;
+
 class Schedule
 {
   /** @var ScheduleInterval[][] */
@@ -31,87 +34,37 @@ class Schedule
     // construct schedule intervals from rows
     foreach ($orderedScheduleRows as $day => $dayRows) {
       foreach ($dayRows as $hour => $hourRows) {
-        $groups = self::buildGroupsFromScheduleRows($hourRows);
-        $classrooms = self::buildClassroomsFromScheduleRows($hourRows);
+
+        // group Groups by id
+        /** @var ScheduleGroup[] $groupsById */
+        $groupsById = [];
+        foreach ($hourRows as $hourRow) {
+          if ($groupsById[$hourRow->groupId] ?? false) {
+            $groupsById[$hourRow->groupId]->scheduleRowIds[] = $hourRow->id;
+          } else {
+            $groupsById[$hourRow->groupId] = new ScheduleGroup($hourRow->groupId, $hourRow->groupName, [$hourRow->id]);
+          }
+        }
+
+        // group Classrooms by id
+        /** @var ScheduleClassroom[] $classroomsById */
+        $classroomsById = [];
+        foreach ($hourRows as $hourRow) {
+          if ($classroomsById[$hourRow->classroomId] ?? false) {
+            $classroomsById[$hourRow->classroomId]->scheduleRowIds[] = $hourRow->id;
+          } else {
+            $classroomsById[$hourRow->classroomId] = new ScheduleClassroom($hourRow->classroomId, $hourRow->classroomName, [$hourRow->id]);
+          }
+        }
 
         $this->scheduleRows["d$day"]["h$hour"] = new ScheduleInterval(
           $hourRows[0]->day,
           $hourRows[0]->hour,
-          $groups,
-          $classrooms
+          $groupsById,
+          $classroomsById
         );
 
       }
     }
-  }
-
-  /**
-   * @param ScheduleRow[] $rows
-   * @return Group[]
-   */
-  public static function buildGroupsFromScheduleRows(array $rows): array
-  {
-    // create group rows
-    /** @var GroupRow[] $groupRows */
-    $groupRows = [];
-    foreach ($rows as $row) {
-      $groupRows[] = new GroupRow($row->groupId, $row->groupName, $row->id);
-    }
-
-    // group group-rows by id
-    /** @var GroupRow $groupRowsById */
-    $groupRowsById = [];
-    foreach ($groupRows as $groupRow) {
-      $groupRowsById[$groupRow->id][] = $groupRow;
-    }
-
-    // create group objects
-    /** @var Group[] $groups */
-    $groups = [];
-    foreach ($groupRowsById as $groupId => $groupRows) {
-      $ids = array_map(fn($gr) => $gr->scheduleRowId, $groupRows);
-      $groups[] = new Group(
-        $groupId,
-        $groupRows[0]->name,
-        $ids
-      );
-    }
-
-    return $groups;
-  }
-
-  /**
-   * @param ScheduleRow[] $rows
-   * @return Classroom[]
-   */
-  public static function buildClassroomsFromScheduleRows(array $rows): array
-  {
-    // create classroom rows
-    /** @var ClassroomRow[] $classroomRows */
-    $classroomRows = [];
-    foreach ($rows as $row) {
-      $classroomRows[] = new ClassroomRow($row->classroomId, $row->classroomName, $row->id);
-    }
-
-    // group classroom-rows by id
-    /** @var ClassroomRow $classroomRowsById */
-    $classroomRowsById = [];
-    foreach ($classroomRows as $classroomRow) {
-      $classroomRowsById[$classroomRow->id][] = $classroomRow;
-    }
-
-    // create classroom objects
-    /** @var Classroom[] $classrooms */
-    $classrooms = [];
-    foreach ($classroomRowsById as $classroomId => $classroomRows) {
-      $ids = array_map(fn($cr) => $cr->scheduleRowId, $classroomRows);
-      $classrooms[] = new Classroom(
-        $classroomId,
-        $classroomRows[0]->name,
-        $ids
-      );
-    }
-
-    return $classrooms;
   }
 }
