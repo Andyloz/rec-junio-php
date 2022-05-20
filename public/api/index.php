@@ -65,6 +65,8 @@ $app->group('', function (RouteCollectorProxy $group) {
     $group->delete('/remove-group-in-hour', [DataChangeController::class, 'removeGroupInHour']);
 
     $group->put('/edit-classroom-in-hour', [DataChangeController::class, 'editClassroomInHour']);
+
+    $group->post('/insert-group-in-hour', [DataChangeController::class, 'insertGroupInHour']);
   })->add(new AdminPrivateMiddleware);
 })->add(new PrivateMiddleware);
 
