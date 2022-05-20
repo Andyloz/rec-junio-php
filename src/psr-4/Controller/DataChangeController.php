@@ -104,4 +104,142 @@ class DataChangeController
 
     return $response->withJson($data);
   }
+
+  public function insertGroupInHour(Request $request, MyResponse $response): ResponseInterface
+  {
+    $body = $request->getParsedBody();
+
+    $validation = new Validation();
+    $val = $validation->validate([
+      [
+        'value' => $body['id-user'], 'name' => 'El código de profesor', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'messages' => ['msg-min-val' => 'no está registrado', 'msg-max-val' => 'no está registrado']
+      ],
+      [
+        'value' => $body['day'], 'name' => 'El código de día', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 5],
+        'messages' => ['msg-min-val' => 'debe estar entre 1 y 5', 'msg-max-val' => 'debe estar entre 1 y 5']
+      ],
+      [
+        'value' => $body['hour'], 'name' => 'El código de hora', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 7],
+        'messages' => ['msg-min-val' => 'debe estar entre 1 y 7', 'msg-max-val' => 'debe estar entre 1 y 7']
+      ],
+      [
+        'value' => $body['id-group'], 'name' => 'El código de grupo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
+      ],
+      [
+        'value' => $body['id-classroom'], 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
+      ]
+    ]);
+
+    if (is_array($val)) return $response->withJson($val);
+
+    $pdo = Connection::getInstance();
+    $query = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = :userID");
+    $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
+    $query->execute();
+
+    $resultUser = $query->fetch();
+    if (!$resultUser) return $response->withJson([
+      'msg' => 'El profesor no existe'
+    ]);
+
+    $query = $pdo->prepare("SELECT id_grupo, nombre FROM grupos WHERE id_grupo = :groupID");
+    $query->bindParam('groupID', $body['id-group'], PDO::PARAM_INT);
+    $query->execute();
+
+    $resultGroup = $query->fetch();
+    if (!$resultGroup) return $response->withJson([
+      'msg' => 'El grupo no existe'
+    ]);
+
+    $query = $pdo->prepare("SELECT id_aula, nombre FROM aulas WHERE id_aula = :classroomID");
+    $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+    $query->execute();
+
+    $resultClassroom = $query->fetch();
+    if (!$resultClassroom) return $response->withJson([
+      'msg' => 'El aula no existe'
+    ]);
+
+    if (substr($resultGroup['nombre'], 0, 1) != 'G' && $resultGroup['nombre'] != 'FDIR' && $resultClassroom['nombre'] == 'Sin asignar o sin aula')
+      return $response->withJson([
+        'msg' => 'El grupo ' . $resultGroup['nombre'] . ' debe tener un aula asignada'
+      ]);
+
+    if ((substr($resultGroup['nombre'], 0, 1) == 'G' || $resultGroup['nombre'] == 'FDIR') && $resultClassroom['nombre'] != 'Sin asignar o sin aula')
+      return $response->withJson([
+        'msg' => 'El grupo ' . $resultGroup['nombre'] . ' no puede tener un aula asignada'
+      ]);
+
+    $query = $pdo->prepare("SELECT horario_lectivo.grupo, grupos.nombre nombre_grupo, horario_lectivo.aula, aulas.nombre nombre_aula FROM horario_lectivo " .
+      "JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo JOIN aulas ON horario_lectivo.aula = aulas.id_aula WHERE horario_lectivo.usuario = :userID AND " .
+      "horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID");
+    $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
+    $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
+    $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
+    $query->execute();
+
+    $result = $query->fetchAll();
+
+    if (empty($result)) {
+      $query = $pdo->prepare("SELECT horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo, grupos.nombre, horario_lectivo.usuario " .
+        "FROM horario_lectivo JOIN aulas ON horario_lectivo.aula = aulas.id_aula JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo WHERE horario_lectivo.dia = :dayID " .
+        "AND horario_lectivo.hora = :hourID AND aulas.id_aula = :classroomID");
+      $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
+      $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
+      $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+      $query->execute();
+
+      $occupiedScheduleResult = $query->fetchAll();
+      $groupsInClassroom = [];
+      foreach ($occupiedScheduleResult as $sheduleRow) if ($body['id-group'] != $sheduleRow['grupo']) $groupsInClassroom[] = $sheduleRow;
+
+      if (!empty($groupsInClassroom))
+        return $response->withJson([
+          'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada por el profesor ' . $sheduleRow['usuario'],
+          'groups-in-classroom' => $groupsInClassroom
+        ]);
+    }
+
+    if ($result) {
+      foreach ($result as $scheduleRow) {
+
+        if (substr($scheduleRow['nombre_grupo'], 0, 1) == 'G' || $scheduleRow['nombre_grupo'] == 'FDIR')
+          return $response->withJson([
+            'msg' => 'No es posible añadir. Ya hay un grupo sin aula en esta hora en el horario del profesor ' . $body['id-user']
+          ]);
+
+        if (substr($resultGroup['nombre'], 0, 1) == 'G' || $resultGroup['nombre'] == 'FDIR')
+          return $response->withJson([
+            'msg' => 'No es posible añadir un grupo sin aula en esta hora en el horario del profesor ' . $body['id-user'] . ' porque ya hay un grupo registrado'
+          ]);
+
+        if ($body['id-classroom'] != $scheduleRow['aula'])
+          return $response->withJson([
+            'msg' => 'No es posible añadir dos aulas en una misma hora'
+          ]);
+
+        if ($body['id-group'] == $scheduleRow['grupo'] && $body['id-classroom'] == $scheduleRow['aula'])
+          return $response->withJson([
+            'msg' => 'El grupo ' . $resultGroup['nombre'] . ' en el aula ' . $resultClassroom['nombre'] .
+              ' ya está añadido a esta hora en el horario del profesor ' . $body['id-user']
+          ]);
+      }
+    }
+
+    $query = $pdo->prepare("INSERT INTO horario_lectivo (usuario, dia, hora, grupo, aula) VALUES (:userID, :dayID, :hourID, :groupID, :classroomID)");
+    $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
+    $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
+    $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
+    $query->bindParam('groupID', $body['id-group'], PDO::PARAM_INT);
+    $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+    $query->execute();
+
+    return $response->withJson([
+      'msg' => 'El grupo ' . $resultGroup['nombre'] . ' en el aula ' . $resultClassroom['nombre'] . ' ha sido insertado con éxito en el horario del profesor ' .
+        $body['id-user']
+    ]);
+  }
 }
