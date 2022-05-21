@@ -19,10 +19,10 @@
   },
   "autoload": {
     "psr-4": {
-      "FAFL\\RecJunioPhp\\": "src/psr-4/"
+      "FAFL\\RecJunioPhp\\": "src-php/psr-4/"
     },
     "files": [
-      "src/dotenv-setup.php"
+      "src-php/dotenv-setup.php"
     ]
   }
 }
