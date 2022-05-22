@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import Layout from './components/Layout/Layout'
 
 const App = () => {
@@ -7,4 +7,4 @@ const App = () => {
   )
 }
 
-export default App;
+export default App

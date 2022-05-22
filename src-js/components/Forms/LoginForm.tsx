@@ -5,8 +5,8 @@ import FormField from './FormField/FormField'
 const LoginForm = () => {
   return (
     <form method='post'>
-      <FormField type={'text'} label='Usuario:' name={'login-username'} maxLength={20}/>
-      <FormField type={'text'} label='Contraseña:' name={'login-password'} maxLength={6}/>
+      <FormField type={'text'} label='Usuario:' name={'login-username'} maxLength={20} />
+      <FormField type={'text'} label='Contraseña:' name={'login-password'} maxLength={6} />
       <Button type='submit' level='btn-primary'>Iniciar Sesión</Button>
     </form>
   )
