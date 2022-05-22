@@ -3,8 +3,8 @@ import Button from '../Button'
 
 const LogoutForm = () => {
   return (
-    <form method="post">
-      <Button type='submit'>Cerrar Sesión</Button>
+    <form method='post'>
+      <Button type='submit' level='btn-secondary'>Cerrar Sesión</Button>
     </form>
   )
 }
