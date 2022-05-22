@@ -6,7 +6,6 @@ class ScheduleRow
 {
   public function __construct(
     public int $id,
-    public int $userId,
     public int $day,
     public int $hour,
     public int $groupId,
