@@ -9,9 +9,9 @@ interface IProps {
   maxLength?: number
 }
 
-const FormField:FC<IProps> = ({type, name, label, maxLength}) => {
+const FormField: FC<IProps> = ({ type, name, label, maxLength }) => {
   return (
-    <div className="mb-3">
+    <div className='mb-3'>
       <Label idFor={name}>{label}</Label>
       <Input type={type} name={name} maxLength={maxLength} />
     </div>
