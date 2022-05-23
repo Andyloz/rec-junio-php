@@ -6,7 +6,7 @@ import WelcomeLayer from '../WelcomeLayer'
 
 const Main = () => {
   return (
-    <main className='container px-3'>
+    <main className='container'>
       <h2 className='mb-3 mt-5 text-center text-sm-start'>Iniciar Sesión</h2>
       <LoginForm />
       <WelcomeLayer />
