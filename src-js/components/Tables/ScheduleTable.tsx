@@ -3,7 +3,7 @@ import React from 'react'
 const ScheduleTable = () => {
 
   return (
-    <div className="table-responsive">
+    <div className='table-responsive'>
       <table className='table table-bordered mt-4'>
         <thead className='table-primary borderb-0'>
           <tr className='text-center'>
