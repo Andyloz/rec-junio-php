@@ -1,6 +1,7 @@
 import React from 'react'
 import LoginForm from '../Forms/LoginForm'
 import TeacherSelectorForm from '../Forms/TeacherSelectorForm'
+import ScheduleHourResume from '../ScheduleHourResume'
 import TeacherSchedule from '../TeacherSchedule'
 import WelcomeLayer from '../WelcomeLayer'
 
@@ -14,6 +15,7 @@ const Main = () => {
       <h2>Su horario</h2>
       <h2>Horario de los profesores</h2>
       <TeacherSchedule />
+      <ScheduleHourResume />
     </main>
   )
 }
