@@ -1,14 +1,15 @@
-import React, { FC, ReactNode } from 'react'
+import React, { ButtonHTMLAttributes, FC, ReactNode } from 'react'
 
-interface IProps {
-  type: 'button' | 'submit'
+interface IProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   level: 'btn-primary' | 'btn-secondary'
   children: ReactNode
 }
 
-const Button: FC<IProps> = ({ type, level, children }) => {
+const Button: FC<IProps> = (
+  { level, children, ...otherProps },
+) => {
   return (
-    <button type={type} className={'btn ' + level}>{children}</button>
+    <button className={ 'btn ' + level } { ...otherProps }>{ children }</button>
   )
 }
 

@@ -7,13 +7,14 @@ interface IProps {
   name: string
   label: string
   maxLength?: number
+  placeholder?: string
 }
 
-const FormField: FC<IProps> = ({ type, name, label, maxLength }) => {
+const FormField: FC<IProps> = ({ type, name, label, maxLength, placeholder }) => {
   return (
     <div className='mb-3'>
       <Label idFor={name}>{label}</Label>
-      <Input type={type} name={name} maxLength={maxLength} />
+      <Input type={type} name={name} maxLength={maxLength} placeholder={placeholder} />
     </div>
   )
 }
