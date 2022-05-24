@@ -9,6 +9,12 @@ const ScheduleTable: FC<IProps> = ({ userId }) => {
   const { response, doRequest } = useApi()
 
   useEffect(() => {
+    if (response) {
+      console.log(response)
+    }
+  }, [response])
+
+  useEffect(() => {
     doRequest(`api/obtain-schedule/${ userId }`)
   }, [userId])
 
