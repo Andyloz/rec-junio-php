@@ -10,7 +10,7 @@ const TeacherSchedule: FC<IProps> = ({ user }) => {
   return (
     <section>
       <h3 className='mt-5'>Horario del profesor { user.nombre }</h3>
-      <ScheduleTable />
+      <ScheduleTable userId={user.id_usuario} />
     </section>
   )
 }
