@@ -10,8 +10,10 @@ const LoginForm: FC<IProps> = ({ onPressedLogin }) => {
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    onPressedLogin(formData)
+    if (e.currentTarget.checkValidity()) {
+      const formData = new FormData(e.currentTarget)
+      onPressedLogin(formData)
+    }
   }
 
   return (
@@ -23,8 +25,8 @@ const LoginForm: FC<IProps> = ({ onPressedLogin }) => {
         </h2>
         <form className='card shadow-sm p-2' onSubmit={ handleSubmit }>
           <div className='card-body'>
-            <FormField type={ 'text' } label='Usuario:' name={ 'login-username' } maxLength={ 20 } />
-            <FormField type={ 'text' } label='Contraseña:' name={ 'login-password' } maxLength={ 6 } />
+            <FormField type={ 'text' } labelText='Usuario:' name={ 'login-username' } maxLength={ 20 } required />
+            <FormField type={ 'password' } labelText='Contraseña:' name={ 'login-password' } maxLength={ 6 } required />
             <Button type='submit' level='btn-primary'>Iniciar Sesión</Button>
           </div>
         </form>
