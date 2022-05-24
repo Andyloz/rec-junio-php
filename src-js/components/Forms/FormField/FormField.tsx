@@ -1,20 +1,16 @@
-import React, { FC } from 'react'
-import Input from './Input'
+import React, { FC, InputHTMLAttributes } from 'react'
 import Label from './Label'
 
-interface IProps {
-  type: 'text' | 'password'
+interface IProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string
-  label: string
-  maxLength?: number
-  placeholder?: string
+  labelText: string
 }
 
-const FormField: FC<IProps> = ({ type, name, label, maxLength, placeholder }) => {
+const FormField: FC<IProps> = ({ name, labelText, ...otherProps }) => {
   return (
     <div className='mb-3'>
-      <Label idFor={name}>{label}</Label>
-      <Input type={type} name={name} maxLength={maxLength} placeholder={placeholder} />
+      <Label idFor={ name }>{ labelText }</Label>
+      <input className='form-control' id={ name } { ...otherProps } />
     </div>
   )
 }
