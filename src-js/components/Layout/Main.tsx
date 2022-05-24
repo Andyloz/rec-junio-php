@@ -2,33 +2,62 @@ import React, { useEffect, useState } from 'react'
 import LoginForm from '../Forms/LoginForm'
 import Dashboard from '../Dashboard'
 import useApi from '../../hooks/useApi'
-import Message from '../shapes/Message'
 import User from '../shapes/User'
-import Error from '../shapes/Error'
+
+type SessionResponse = { user: User } | Record<'not-logged' | 'error' | 'forbidden' | 'time', string>
+type LoginResponse = { user: User } | Record<'msg' | 'error', string>
 
 const Main = () => {
-  const { response, doRequest } = useApi<{ user: User } | Error | Message>()
+  const { response: sessionResponse, doRequest: doSessionRequest } = useApi<SessionResponse>()
+  const { response: loginResponse, doRequest: doLoginRequest } = useApi<LoginResponse>()
+
   const [user, setUser] = useState<User>()
   const [loginMessage, setLoginMessage] = useState<string>()
   const [errorMessage, setLoginError] = useState<string>()
 
+  // session checking
   useEffect(() => {
-    if (response) {
+    doSessionRequest('api/session-status')
+    const interval = setInterval(
+      () => doSessionRequest('api/session-status'), 60000
+    )
+    return () => clearInterval(interval)
+  }, [])
 
-      if ('msg' in response) {
-        setLoginMessage(response.msg)
-      } else if ('error' in response) {
-        setLoginError(response.error)
+  // on session response change
+  useEffect(() => {
+    if (sessionResponse) {
+
+      if ('time' in sessionResponse) {
+        setLoginMessage(sessionResponse['time'])
+      } else if ('forbidden' in sessionResponse) {
+        setLoginMessage(sessionResponse['forbidden'])
       } else { // is User
-        setUser(response.user)
+        setUser(sessionResponse['user'])
       }
 
     }
-  }, [response])
+  }, [sessionResponse])
+
+
+  // on login response change
+  useEffect(() => {
+    if (loginResponse) {
+
+      if ('msg' in loginResponse) {
+        setLoginMessage(loginResponse['msg'])
+      } else if ('error' in loginResponse) {
+        setLoginError(loginResponse['error'])
+      } else { // is User
+        setUser(loginResponse['user'])
+      }
+
+    }
+  }, [loginResponse])
 
   const handleLoginPress = (fd: FormData) => {
     const data = Object.fromEntries(fd.entries())
-    doRequest('api/login', {
+    doLoginRequest('api/login', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -38,7 +67,7 @@ const Main = () => {
     <main className='flex-grow-1'>
       {
         user
-          ? <Dashboard user={user} />
+          ? <Dashboard user={ user } />
           : <LoginForm onPressedLogin={ handleLoginPress } message={ loginMessage } error={ errorMessage } />
       }
     </main>
