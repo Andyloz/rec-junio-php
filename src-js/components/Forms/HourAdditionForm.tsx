@@ -1,12 +1,10 @@
 import React from 'react'
-import Button from '../Button'
-import Label from './FormField/Label'
 
 const HourAdditionForm = () => {
 
   return (
     <form method='post' className='d-flex flex-row align-items-center'>
-      <Label idFor='hour-addition-group' className='m-0 mb-2 me-4 mb-sm-0'>Grupo</Label>
+      <label htmlFor='hour-addition-group' className='form-label m-0 mb-2 me-4 mb-sm-0'>Grupo</label>
       <select id='hour-addition-group' name='hour-addition-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>
         <option value='1' selected>1º ESO</option>
@@ -14,7 +12,7 @@ const HourAdditionForm = () => {
         <option value='3'>3º ESO</option>
       </select>
 
-      <Label idFor='hour-addition-classroom' className='m-0 mb-2 me-4 mb-sm-0'>Aula</Label>
+      <label htmlFor='hour-addition-classroom' className='form-label m-0 mb-2 me-4 mb-sm-0'>Aula</label>
       <select id='hour-addition-classroom' name='hour-addition-classroom' className='form-select mb-3 w-25 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>
         <option value='1' selected>1</option>
@@ -22,7 +20,7 @@ const HourAdditionForm = () => {
         <option value='3'>3</option>
       </select>
 
-      <Button type='submit' level='btn-primary'>Añadir</Button>
+      <button type='submit' className='btn btn-primary'>Añadir</button>
     </form>
   )
 }

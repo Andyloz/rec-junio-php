@@ -1,6 +1,5 @@
 import React, { FC, FormEventHandler } from 'react'
-import Button from '../Button'
-import FormField from './FormField/FormField'
+import FormField from './FormField'
 import useMediaQuery from '../../hooks/useMediaQuery'
 
 interface IProps {
@@ -44,7 +43,7 @@ const LoginForm: FC<IProps> = ({ message, error, onPressedLogin }) => {
           <div className='card-body'>
             <FormField type={ 'text' } labelText='Usuario:' name={ 'username' } maxLength={ 20 } required />
             <FormField type={ 'password' } labelText='Contraseña:' name={ 'password' } maxLength={ 6 } required />
-            <Button type='submit' level='btn-primary'>Iniciar Sesión</Button>
+            <button type='submit' className='btn btn-primary'>Iniciar Sesión</button>
           </div>
         </form>
       </div>

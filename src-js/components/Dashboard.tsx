@@ -3,6 +3,7 @@ import UserType from './shapes/UserType'
 import User from './shapes/User'
 import TeacherSchedule from './TeacherSchedule'
 import TeacherSelectorForm from './Forms/TeacherSelectorForm'
+import WelcomeLayer from './WelcomeLayer'
 
 interface IProp {
   user: User
@@ -15,12 +16,13 @@ const Dashboard: FC<IProp> = ({ user }) => {
   return (
     <div className='container'>
       <h1 className='mt-5'>Dashboard</h1>
+      <WelcomeLayer user={ user } />
       { user.tipo === UserType.Normal && <TeacherSchedule user={ user } /> || (
-          <>
-            <TeacherSelectorForm onPressedSubmit={handleTeacherSelect} />
-            { selectedTeacher && <TeacherSchedule user={ selectedTeacher } /> }
-          </>
-        ) }
+        <>
+          <TeacherSelectorForm onPressedSubmit={ handleTeacherSelect } />
+          { selectedTeacher && <TeacherSchedule user={ selectedTeacher } /> }
+        </>
+      ) }
     </div>
   )
 }

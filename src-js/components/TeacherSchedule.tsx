@@ -9,8 +9,8 @@ interface IProps {
 const TeacherSchedule: FC<IProps> = ({ user }) => {
   return (
     <section>
-      <h3 className='mt-5'>Horario del profesor { user.nombre }</h3>
-      <ScheduleTable userId={user.id_usuario} />
+      <h3 className='mt-4 mt-sm-5'>Horario del profesor { user.nombre }</h3>
+      <ScheduleTable user={user} />
     </section>
   )
 }

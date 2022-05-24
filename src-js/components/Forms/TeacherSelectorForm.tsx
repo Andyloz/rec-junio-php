@@ -1,6 +1,4 @@
 import React, { FC, FormEventHandler, useEffect, useMemo } from 'react'
-import Button from '../Button'
-import Label from './FormField/Label'
 import User from '../shapes/User'
 import useApi from '../../hooks/useApi'
 
@@ -36,10 +34,10 @@ const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
 
   return (
     <form className='d-flex flex-wrap align-items-center mt-4' onSubmit={ handleSubmit }>
-      <Label idFor='teacher-selector' className='m-0 mb-2 me-4 mb-sm-0'>
+      <label htmlFor='teacher-selector' className='form-label m-0 mb-2 me-4 mb-sm-0'>
         Seleccione el profesor
         { teachersLoading && <strong>(cargando la lista de profesores)</strong> }
-      </Label>
+      </label>
       <select id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>
         {
@@ -48,7 +46,7 @@ const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
           ))
         }
       </select>
-      <Button type='submit' level='btn-primary' className='mb-3 mb-sm-0'>Ver Horario</Button>
+      <button type='submit' className='btn btn-primary mb-3 mb-sm-0'>Ver Horario</button>
     </form>
   )
 }
