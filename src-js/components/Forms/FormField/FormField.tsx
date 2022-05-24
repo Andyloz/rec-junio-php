@@ -10,7 +10,7 @@ const FormField: FC<IProps> = ({ name, labelText, ...otherProps }) => {
   return (
     <div className='mb-3'>
       <Label idFor={ name }>{ labelText }</Label>
-      <input className='form-control' id={ name } { ...otherProps } />
+      <input className='form-control' id={ name } name={ name } { ...otherProps } />
     </div>
   )
 }
