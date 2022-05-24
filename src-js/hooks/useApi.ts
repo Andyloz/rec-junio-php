@@ -5,7 +5,7 @@ const useApi = <T> () => {
 
   const doRequest = async (url: string, requestProps: RequestInit = {}) => {
     const response = await fetch(url, {
-      headers: { ContentType: 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       ...requestProps
     })
     const object = await response.json()
