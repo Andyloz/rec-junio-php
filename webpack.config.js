@@ -43,6 +43,7 @@ module.exports = {
   ],
 
   devServer: {
+    allowedHosts: ['lozandyloz.duckdns.org'],
     port: process.env.DEV_SERVER_PORT,
     proxy: {
       '/api': process.env.DEV_SERVER_PUBLIC_URL,
