@@ -8,7 +8,7 @@ import Error from '../shapes/Error'
 
 const Main = () => {
   const { response, doRequest } = useApi<{ user: User } | Error | Message>()
-  const [user, setUser] = useState<{}>()
+  const [user, setUser] = useState<User>()
   const [loginMessage, setLoginMessage] = useState<string>()
   const [errorMessage, setLoginError] = useState<string>()
 
@@ -38,7 +38,7 @@ const Main = () => {
     <main className='flex-grow-1'>
       {
         user
-          ? <Dashboard />
+          ? <Dashboard user={user} />
           : <LoginForm onPressedLogin={ handleLoginPress } message={ loginMessage } error={ errorMessage } />
       }
     </main>
