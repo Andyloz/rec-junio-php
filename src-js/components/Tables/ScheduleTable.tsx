@@ -15,7 +15,7 @@ const ScheduleTable: FC<IProps> = ({ userId }) => {
   return (
     <div className='table-responsive'>
       <table className='table table-bordered mt-4'>
-        <thead className='table-primary borderb-0'>{/* todo: preguntar a sander what is this */ }
+        <thead className='table-primary'>
         <tr className='text-center'>
           <th scope='col'></th>
           <th scope='col'>Lunes</th>
