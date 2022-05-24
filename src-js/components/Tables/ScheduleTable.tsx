@@ -52,7 +52,7 @@ const ScheduleTable: FC<IProps> = ({ userId }) => {
         </tr>
         <tr>
           <th className='text-center' scope='row'>11:15 - 11:45</th>
-          <td colSpan={ 5 } className='text-center'>RECREO</td>
+          <td colSpan={ 5 } className='text-center align-middle'>RECREO</td>
         </tr>
         <tr>
           <th className='text-center' scope='row'>11:45 - 12:45</th>
