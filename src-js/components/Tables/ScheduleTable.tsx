@@ -3,10 +3,12 @@ import useApi from '../../hooks/useApi'
 import Schedule from '../shapes/Schedule'
 import User from '../shapes/User'
 import UserType from '../shapes/UserType'
+import ScheduleInterval from '../shapes/ScheduleInterval'
 
 interface IProps {
   user: User
   type: UserType
+  onEditPress?(interval: ScheduleInterval): void
 }
 
 const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
@@ -17,7 +19,7 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
   </td>
 )
 
-const ScheduleTable: FC<IProps> = ({ user, type }) => {
+const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
   const { response, doRequest } = useApi<{ schedule: Schedule }>()
 
   useEffect(() => {
@@ -61,29 +63,36 @@ const ScheduleTable: FC<IProps> = ({ user, type }) => {
         }
 
         const interval = response.schedule[`d${ day }`][`h${ hour }`]
-        if (!('day' in interval)) {
-          row.push(
-            <Cell key={ `d${ day }-h${ hour }` }>
-              { type === UserType.Admin &&
-                <a role='button' className='link-primary'>Editar</a> }
-            </Cell>,
-          )
-          continue
-        }
+        const col = []
 
-        const groups = interval.groups
-          .map(g => g.name)
-          .join(' / ')
-        const classrooms = interval.classrooms
-          .map(c => c.name)
-          .join(' / ')
+        if ('day' in interval) {
+          const groups = interval.groups
+            .map(g => g.name)
+            .join(' / ')
+          const classrooms = interval.classrooms
+            .map(c => c.name)
+            .join(' / ')
+
+          col.push(
+            <span key='groups' style={ { maxWidth: '200px' } }>{ groups }</span>,
+            <span key='classrooms' style={ { maxWidth: '200px' } }>({ classrooms })</span>,
+          )
+        }
 
         row.push(
           <Cell key={ `d${ day }-h${ hour }` }>
-            <span style={ { maxWidth: '200px' } }>{ groups }</span>
-            <span style={ { maxWidth: '200px' } }>({ classrooms })</span>
+            { col }
             { type === UserType.Admin &&
-              <a role='button' className='link-primary'>Editar</a> }
+              <a
+                role='button'
+                className='link-primary'
+                onClick={() => onEditPress && onEditPress(
+                  'day' in interval
+                    ? interval
+                    : {day: day, hour: hour, classrooms: [], groups: []}
+                )}
+                children='Editar'
+              /> }
           </Cell>,
         )
       }

@@ -47,7 +47,6 @@ const Main = () => {
     }
   }, [logoutConfirm])
 
-
   // on login response change
   useEffect(() => {
     if (loginResponse) {
@@ -91,7 +90,7 @@ const Main = () => {
             onPressedLogin={ handleLoginPress }
             message={ loginMessage }
             error={ errorMessage }
-            hideMessage={hideMessage}
+            hideMessage={ hideMessage }
           />
       }
     </main>
