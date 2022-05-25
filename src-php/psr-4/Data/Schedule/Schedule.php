@@ -60,8 +60,8 @@ class Schedule
         $this->scheduleRows["d$day"]["h$hour"] = new ScheduleInterval(
           $hourRows[0]->day,
           $hourRows[0]->hour,
-          $groupsById,
-          $classroomsById
+          array_values($groupsById),
+          array_values($classroomsById)
         );
 
       }
