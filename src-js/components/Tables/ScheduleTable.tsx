@@ -16,9 +16,8 @@ const ScheduleTable: FC<IProps> = ({ user }) => {
   }, [user])
 
   const builtRows = useMemo(() => {
-    if (!response) {
-      return undefined
-    }
+
+    if (!response) return undefined
 
     const rowHeaders = [
       <></>,
@@ -44,21 +43,20 @@ const ScheduleTable: FC<IProps> = ({ user }) => {
 
       const row = []
       for (let day = 0; day <= 5; day++) {
-        const interval = response.schedule[`d${ day }`][`h${ hour }`]
-        if (!interval) {
-          continue
-        }
 
         if (day === 0) {
           row.push(rowHeaders[hour])
           continue
         }
 
-        const groups = interval.groups
-          .map(g => g.name)
+        const interval = response.schedule[`d${ day }`][`h${ hour }`]
+        if (!interval ||(!interval.groups && !interval.classrooms && !interval.day && !interval.hour)) continue
+
+        const groups = Object.entries(interval.groups)
+          .map(g => g[1].name)
           .join('/')
-        const classrooms = interval.classrooms
-          .map(c => c.name)
+        const classrooms = Object.entries(interval.classrooms)
+          .map(c => c[1].name)
           .join('/')
 
         row.push(
