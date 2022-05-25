@@ -120,7 +120,7 @@ class DataReadController
       ]);
 
     return $response->withJson([
-      'free-clasrooms' => $result
+      'free-classrooms' => $result
     ]);
   }
 
