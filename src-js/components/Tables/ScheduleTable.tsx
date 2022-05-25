@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo } from 'react'
+import React, { FC, ReactNode, useEffect, useMemo } from 'react'
 import useApi from '../../hooks/useApi'
 import Schedule from '../shapes/Schedule'
 import User from '../shapes/User'
@@ -7,6 +7,14 @@ import UserType from '../shapes/UserType'
 interface IProps {
   user: User
 }
+
+const Cell: FC<{ children?: ReactNode }> = ({children}) => (
+  <td>
+    <div className='h-100 d-flex flex-column g-1 justify-content-center align-items-center'>
+      {children}
+    </div>
+  </td>
+)
 
 const ScheduleTable: FC<IProps> = ({ user }) => {
   const { response, doRequest } = useApi<{ schedule: Schedule }>()
@@ -17,20 +25,22 @@ const ScheduleTable: FC<IProps> = ({ user }) => {
 
   const builtRows = useMemo(() => {
 
-    if (!response) return undefined
+    if (!response) {
+      return undefined
+    }
 
     const rowHeaders = [
       <></>,
-      <th key={ 1 } className='text-center' scope='row'>8:15 - 9:15</th>,
-      <th key={ 2 } className='text-center' scope='row'>9:15 - 10:15</th>,
-      <th key={ 3 } className='text-center' scope='row'>10:15 - 11:15</th>,
-      <tr key={ 4 }>
+      <th key={`th${1}`} className='text-center' scope='row'>8:15 - 9:15</th>,
+      <th key={`th${2}`} className='text-center' scope='row'>9:15 - 10:15</th>,
+      <th key={`th${3}`} className='text-center' scope='row'>10:15 - 11:15</th>,
+      <tr key={`th${4}`}>
         <th className='text-center' scope='row'>11:15 - 11:45</th>
         <td colSpan={ 5 } className='text-center align-middle'>RECREO</td>
       </tr>,
-      <th key={ 5 } className='text-center' scope='row'>11:45 - 12:45</th>,
-      <th key={ 6 } className='text-center' scope='row'>12:45 - 13:45</th>,
-      <th key={ 7 } className='text-center' scope='row'>13:45 - 14:45</th>,
+      <th key={`th${5}`} className='text-center' scope='row'>11:45 - 12:45</th>,
+      <th key={`th${6}`} className='text-center' scope='row'>12:45 - 13:45</th>,
+      <th key={`th${7}`} className='text-center' scope='row'>13:45 - 14:45</th>,
     ]
 
     const rows = []
@@ -50,25 +60,30 @@ const ScheduleTable: FC<IProps> = ({ user }) => {
         }
 
         const interval = response.schedule[`d${ day }`][`h${ hour }`]
-        if (!interval ||(!interval.groups && !interval.classrooms && !interval.day && !interval.hour)) continue
+        if (!('day' in interval)) {
+          row.push(
+            <Cell key={`d${day}-h${hour}`} />
+          )
+          continue
+        }
 
-        const groups = Object.entries(interval.groups)
-          .map(g => g[1].name)
+        const groups = interval.groups
+          .map(g => g.name)
           .join('/')
-        const classrooms = Object.entries(interval.classrooms)
-          .map(c => c[1].name)
+        const classrooms = interval.classrooms
+          .map(c => c.name)
           .join('/')
 
         row.push(
-          <td key={ day } className='d-flex flex-column g-1 justify-content-center align-items-center'>
+          <Cell key={`d${day}-h${hour}`}>
             <span>{ groups }</span>
             <span>({ classrooms })</span>
             { user.tipo === UserType.Admin &&
               <button className='link-primary'>Editar</button> }
-          </td>,
+          </Cell>,
         )
       }
-      rows.push(<tr key={ hour }>{ row }</tr>)
+      rows.push(<tr key={ `h${hour}` }>{ row }</tr>)
     }
 
     return rows
