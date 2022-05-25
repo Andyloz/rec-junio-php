@@ -7,16 +7,17 @@ import WelcomeLayer from './WelcomeLayer'
 
 interface IProp {
   user: User
+  logout: () => void
 }
 
-const Dashboard: FC<IProp> = ({ user }) => {
+const Dashboard: FC<IProp> = ({ user, logout }) => {
   const [selectedTeacher, setSelectedTeacher] = useState<User | undefined>()
   const handleTeacherSelect = (teacher: User) => setSelectedTeacher(teacher)
 
   return (
     <div className='container'>
       <h1 className='mt-5'>Dashboard</h1>
-      <WelcomeLayer user={ user } />
+      <WelcomeLayer user={ user } onPressedLogout={ logout } />
       { user.tipo === UserType.Normal && <TeacherSchedule user={ user } /> || (
         <>
           <TeacherSelectorForm onPressedSubmit={ handleTeacherSelect } />

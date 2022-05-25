@@ -10,6 +10,7 @@ type LoginResponse = { user: User } | Record<'msg' | 'error', string>
 const Main = () => {
   const { response: sessionResponse, doRequest: doSessionRequest } = useApi<SessionResponse>()
   const { response: loginResponse, doRequest: doLoginRequest } = useApi<LoginResponse>()
+  const { response: logoutConfirm, doRequest: doLogoutRequest } = useApi<{ msg: string }>()
 
   const [user, setUser] = useState<User>()
   const [loginMessage, setLoginMessage] = useState<string>()
@@ -19,7 +20,7 @@ const Main = () => {
   useEffect(() => {
     doSessionRequest('api/session-status')
     const interval = setInterval(
-      () => doSessionRequest('api/session-status'), 60000
+      () => doSessionRequest('api/session-status'), 60000,
     )
     return () => clearInterval(interval)
   }, [])
@@ -39,6 +40,13 @@ const Main = () => {
     }
   }, [sessionResponse])
 
+  // on logout confirm change
+  useEffect(() => {
+    if (logoutConfirm && 'msg' in logoutConfirm) {
+      setUser(undefined)
+    }
+  }, [logoutConfirm])
+
 
   // on login response change
   useEffect(() => {
@@ -55,6 +63,12 @@ const Main = () => {
     }
   }, [loginResponse])
 
+  const handleLogout = () => {
+    doLogoutRequest('api/logout', {
+      method: 'POST',
+    })
+  }
+
   const handleLoginPress = (fd: FormData) => {
     const data = Object.fromEntries(fd.entries())
     doLoginRequest('api/login', {
@@ -67,7 +81,7 @@ const Main = () => {
     <main className='flex-grow-1'>
       {
         user
-          ? <Dashboard user={ user } />
+          ? <Dashboard user={ user } logout={ handleLogout } />
           : <LoginForm onPressedLogin={ handleLoginPress } message={ loginMessage } error={ errorMessage } />
       }
     </main>

@@ -1,13 +1,17 @@
-import React, { FC } from 'react'
+import React, { FC, MouseEventHandler } from 'react'
 import User from './shapes/User'
-import useApi from '../hooks/useApi'
 
 interface IProps {
   user: User
+  onPressedLogout: () => void
 }
 
-const WelcomeLayer: FC<IProps> = ({ user }) => {
-  const { response, doRequest } = useApi<{ msg: string }>()
+const WelcomeLayer: FC<IProps> = ({ user, onPressedLogout }) => {
+
+  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault()
+    onPressedLogout()
+  }
 
   return (
     <div className='d-flex flex-row flex-wrap align-items-center mt-4'>
@@ -15,8 +19,9 @@ const WelcomeLayer: FC<IProps> = ({ user }) => {
       <button
         type='submit'
         className='btn btn-secondary'
-        onClick={() => doRequest('api/logout', { method: 'POST' })}
-      >Cerrar Sesión</button>
+        onClick={ handleClick }
+      >Cerrar Sesión
+      </button>
     </div>
   )
 }
