@@ -19,7 +19,6 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
 
 const ScheduleTable: FC<IProps> = ({ user, type }) => {
   const { response, doRequest } = useApi<{ schedule: Schedule }>()
-  console.log(type)
 
   useEffect(() => {
     doRequest(`api/obtain-schedule/${ user.id_usuario }`)
