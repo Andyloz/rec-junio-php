@@ -6,9 +6,10 @@ interface IProps {
   message?: string
   error?: string
   onPressedLogin: (data: FormData) => void
+  hideMessage(): void
 }
 
-const LoginForm: FC<IProps> = ({ message, error, onPressedLogin }) => {
+const LoginForm: FC<IProps> = ({ message, error, onPressedLogin, hideMessage }) => {
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
@@ -41,8 +42,14 @@ const LoginForm: FC<IProps> = ({ message, error, onPressedLogin }) => {
         </div>
         <form className='card shadow-sm p-2' onSubmit={ handleSubmit }>
           <div className='card-body'>
-            <FormField type={ 'text' } labelText='Usuario:' name={ 'username' } maxLength={ 20 } required />
-            <FormField type={ 'password' } labelText='Contraseña:' name={ 'password' } maxLength={ 6 } required />
+            <FormField
+              type={ 'text' } labelText='Usuario:' name={ 'username' } maxLength={ 20 } required
+              onChange={hideMessage}
+            />
+            <FormField
+              type={ 'password' } labelText='Contraseña:' name={ 'password' } maxLength={ 6 } required
+              onChange={hideMessage}
+            />
             <button type='submit' className='btn btn-primary'>Iniciar Sesión</button>
           </div>
         </form>

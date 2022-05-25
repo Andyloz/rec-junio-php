@@ -77,12 +77,22 @@ const Main = () => {
     })
   }
 
+  const hideMessage = () => {
+    setLoginMessage(undefined)
+    setLoginError(undefined)
+  }
+
   return (
     <main className='flex-grow-1'>
       {
         user
           ? <Dashboard user={ user } logout={ handleLogout } />
-          : <LoginForm onPressedLogin={ handleLoginPress } message={ loginMessage } error={ errorMessage } />
+          : <LoginForm
+            onPressedLogin={ handleLoginPress }
+            message={ loginMessage }
+            error={ errorMessage }
+            hideMessage={hideMessage}
+          />
       }
     </main>
   )
