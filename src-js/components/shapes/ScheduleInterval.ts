@@ -4,8 +4,8 @@ import ScheduleClassroom from './ScheduleClassroom'
 interface ScheduleInterval {
   day: number
   hour: number
-  groups: Record<ScheduleGroup['id'], ScheduleGroup>
-  classrooms: Record<ScheduleClassroom['id'], ScheduleClassroom>
+  groups: ScheduleGroup[]
+  classrooms: ScheduleClassroom[]
 }
 
 export default ScheduleInterval
