@@ -18,10 +18,10 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
     <div className='container'>
       <h1 className='mt-5'>Dashboard</h1>
       <WelcomeLayer user={ user } onPressedLogout={ logout } />
-      { user.tipo === UserType.Normal && <TeacherSchedule user={ user } /> || (
+      { user.tipo === UserType.Normal && <TeacherSchedule user={ user } type={ user.tipo } /> || (
         <>
           <TeacherSelectorForm onPressedSubmit={ handleTeacherSelect } />
-          { selectedTeacher && <TeacherSchedule user={ selectedTeacher } /> }
+          { selectedTeacher && <TeacherSchedule user={ selectedTeacher } type={ user.tipo } /> }
         </>
       ) }
     </div>
