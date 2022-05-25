@@ -43,7 +43,7 @@ class DataReadController
     $schedule = new Schedule($scheduleRows);
 
     return $response->withJson([
-      'schedule' => $schedule,
+      'schedule' => $schedule->scheduleRows,
     ]);
   }
 

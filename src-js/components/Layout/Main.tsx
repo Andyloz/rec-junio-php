@@ -1,21 +1,75 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import LoginForm from '../Forms/LoginForm'
-import TeacherSelectorForm from '../Forms/TeacherSelectorForm'
-import ScheduleHourResume from '../ScheduleHourResume'
-import TeacherSchedule from '../TeacherSchedule'
-import WelcomeLayer from '../WelcomeLayer'
+import Dashboard from '../Dashboard'
+import useApi from '../../hooks/useApi'
+import User from '../shapes/User'
+
+type SessionResponse = { user: User } | Record<'not-logged' | 'error' | 'forbidden' | 'time', string>
+type LoginResponse = { user: User } | Record<'msg' | 'error', string>
 
 const Main = () => {
+  const { response: sessionResponse, doRequest: doSessionRequest } = useApi<SessionResponse>()
+  const { response: loginResponse, doRequest: doLoginRequest } = useApi<LoginResponse>()
+
+  const [user, setUser] = useState<User>()
+  const [loginMessage, setLoginMessage] = useState<string>()
+  const [errorMessage, setLoginError] = useState<string>()
+
+  // session checking
+  useEffect(() => {
+    doSessionRequest('api/session-status')
+    const interval = setInterval(
+      () => doSessionRequest('api/session-status'), 60000
+    )
+    return () => clearInterval(interval)
+  }, [])
+
+  // on session response change
+  useEffect(() => {
+    if (sessionResponse) {
+
+      if ('time' in sessionResponse) {
+        setLoginMessage(sessionResponse['time'])
+      } else if ('forbidden' in sessionResponse) {
+        setLoginMessage(sessionResponse['forbidden'])
+      } else { // is User
+        setUser(sessionResponse['user'])
+      }
+
+    }
+  }, [sessionResponse])
+
+
+  // on login response change
+  useEffect(() => {
+    if (loginResponse) {
+
+      if ('msg' in loginResponse) {
+        setLoginMessage(loginResponse['msg'])
+      } else if ('error' in loginResponse) {
+        setLoginError(loginResponse['error'])
+      } else { // is User
+        setUser(loginResponse['user'])
+      }
+
+    }
+  }, [loginResponse])
+
+  const handleLoginPress = (fd: FormData) => {
+    const data = Object.fromEntries(fd.entries())
+    doLoginRequest('api/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
   return (
-    <main className='container px-3'>
-      <h2 className='mb-3 mt-5 text-center text-sm-start'>Iniciar Sesión</h2>
-      <LoginForm />
-      <WelcomeLayer />
-      <TeacherSelectorForm />
-      <h2>Su horario</h2>
-      <h2>Horario de los profesores</h2>
-      <TeacherSchedule />
-      <ScheduleHourResume />
+    <main className='flex-grow-1'>
+      {
+        user
+          ? <Dashboard user={ user } />
+          : <LoginForm onPressedLogin={ handleLoginPress } message={ loginMessage } error={ errorMessage } />
+      }
     </main>
   )
 }

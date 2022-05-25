@@ -4,10 +4,10 @@ import Main from './Main'
 
 const Layout = () => {
   return (
-    <>
-      <Header></Header>
-      <Main></Main>
-    </>
+    <div className='vh-100 d-flex flex-column'>
+      <Header />
+      <Main />
+    </div>
   )
 }
 

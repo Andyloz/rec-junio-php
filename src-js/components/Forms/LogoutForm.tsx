@@ -1,10 +1,19 @@
-import React from 'react'
-import Button from '../Button'
+import React, { FormEventHandler } from 'react'
+import useApi from '../../hooks/useApi'
 
 const LogoutForm = () => {
+  const { response, doRequest } = useApi<'msg'>()
+
+  const handleLogoutPress: FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault()
+    doRequest('api/logout', {
+      method: 'POST',
+    })
+  }
+
   return (
-    <form method='post'>
-      <Button type='submit' level='btn-secondary'>Cerrar Sesión</Button>
+    <form onSubmit={ handleLogoutPress }>
+      <button type='submit' className='btn btn-secondary'>Cerrar Sesión</button>
     </form>
   )
 }
