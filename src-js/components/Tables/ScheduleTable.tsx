@@ -31,16 +31,16 @@ const ScheduleTable: FC<IProps> = ({ user }) => {
 
     const rowHeaders = [
       <></>,
-      <th key={`th${1}`} className='text-center' scope='row'>8:15 - 9:15</th>,
-      <th key={`th${2}`} className='text-center' scope='row'>9:15 - 10:15</th>,
-      <th key={`th${3}`} className='text-center' scope='row'>10:15 - 11:15</th>,
+      <th key={`th${1}`} className='text-center align-middle' scope='row'>8:15 - 9:15</th>,
+      <th key={`th${2}`} className='text-center align-middle' scope='row'>9:15 - 10:15</th>,
+      <th key={`th${3}`} className='text-center align-middle' scope='row'>10:15 - 11:15</th>,
       <tr key={`th${4}`}>
-        <th className='text-center' scope='row'>11:15 - 11:45</th>
+        <th className='text-center align-middle' scope='row'>11:15 - 11:45</th>
         <td colSpan={ 5 } className='text-center align-middle'>RECREO</td>
       </tr>,
-      <th key={`th${5}`} className='text-center' scope='row'>11:45 - 12:45</th>,
-      <th key={`th${6}`} className='text-center' scope='row'>12:45 - 13:45</th>,
-      <th key={`th${7}`} className='text-center' scope='row'>13:45 - 14:45</th>,
+      <th key={`th${5}`} className='text-center align-middle' scope='row'>11:45 - 12:45</th>,
+      <th key={`th${6}`} className='text-center align-middle' scope='row'>12:45 - 13:45</th>,
+      <th key={`th${7}`} className='text-center align-middle' scope='row'>13:45 - 14:45</th>,
     ]
 
     const rows = []
