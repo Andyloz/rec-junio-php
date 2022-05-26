@@ -31,8 +31,8 @@ const ScheduleHourSummary: FC<IProps> = ({ interval, user }) => {
   return (
     <section className='mt-4'>
       <h3>Editando la { interval.hour }º hora ({ fHourIntervals[interval.hour] }) del { fDays[interval.day] }</h3>
-      <ScheduleHourTable />
-      <HourAdditionForm />
+      <ScheduleHourTable interval={interval} />
+      <HourAdditionForm user={user} interval={interval} />
     </section>
   )
 }

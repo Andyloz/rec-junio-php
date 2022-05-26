@@ -176,14 +176,14 @@ class DataReadController
     }
 
     return $response->withJson([
-      'occupied-clasrooms' => $occupiedClassrooms
+      'occupied-classrooms' => $occupiedClassrooms
     ]);
   }
 
   private function obtainGroups(string $queryString): int|array
   {
     $pdo = Connection::getInstance();
-    $query = $pdo->prepare("SELECT * FROM grupos WHERE $queryString");
+    $query = $pdo->prepare("SELECT id_grupo id, nombre name FROM grupos WHERE $queryString");
     $query->execute();
 
     $result = $query->fetchAll();
