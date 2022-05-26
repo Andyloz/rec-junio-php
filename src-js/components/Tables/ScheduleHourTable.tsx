@@ -3,23 +3,21 @@ import ScheduleInterval from '../shapes/ScheduleInterval'
 
 interface IProps {
   interval: ScheduleInterval
+  onRmGroupPress: (id: number) => void
 }
 
-const ScheduleHourTable: FC<IProps> = ({ interval }) => {
-  console.log(interval)
+const ScheduleHourTable: FC<IProps> = ({ interval, onRmGroupPress }) => {
 
-  const rows = []
   if (interval) {
-    interval.groups.forEach(group => {
-      rows.push(
-        <tr>
-          <td>{ group.name }</td>
-          <td>
-            <button className='btn btn-link'>Quitar</button>
-          </td>
-        </tr>,
-      )
-    })
+    const classroom = interval.classroom
+    interval.groups.map(group => (
+      <tr key={ group.id }>
+        <td>{ group.name } ({ classroom?.name })</td>
+        <td className='align-middle'>
+          <button className='btn btn-link' onClick={ () => onRmGroupPress(group.id) }>Quitar</button>
+        </td>
+      </tr>
+    ))
   } else {
     rows.push(<tr></tr>)
   }

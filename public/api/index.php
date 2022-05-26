@@ -59,8 +59,8 @@ $app->group('', function (RouteCollectorProxy $group) {
     $group->get('/obtain-groups-with-classroom', [DataReadController::class, 'obtainGroupsWithClassroom']);
     $group->get('/obtain-groups-without-classroom', [DataReadController::class, 'obtainGroupsWithoutClassroom']);
 
-    $group->get('/obtain-free-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainFreeClassrooms']);
-    $group->get('/obtain-occupied-classrooms/{userID}/{day}/{hour}', [DataReadController::class, 'obtainOccupiedClassrooms']);
+    $group->get('/obtain-free-classrooms/{day}/{hour}', [DataReadController::class, 'obtainFreeClassrooms']);
+    $group->get('/obtain-occupied-classrooms/{day}/{hour}', [DataReadController::class, 'obtainOccupiedClassrooms']);
 
     $group->delete('/remove-group-in-hour', [DataChangeController::class, 'removeGroupInHour']);
 

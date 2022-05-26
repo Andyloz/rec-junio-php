@@ -4,6 +4,7 @@ import Schedule from '../shapes/Schedule'
 import User from '../shapes/User'
 import UserType from '../shapes/UserType'
 import ScheduleInterval from '../shapes/ScheduleInterval'
+import ScheduleClassroom from '../shapes/ScheduleClassroom'
 
 interface IProps {
   user: User
@@ -69,13 +70,11 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
           const groups = interval.groups
             .map(g => g.name)
             .join(' / ')
-          const classrooms = interval.classrooms
-            .map(c => c.name)
-            .join(' / ')
+          const classroom = interval.classroom as ScheduleClassroom
 
           col.push(
             <span key='groups' style={ { maxWidth: '200px' } }>{ groups }</span>,
-            <span key='classrooms' style={ { maxWidth: '200px' } }>({ classrooms })</span>,
+            <span key='classrooms' style={ { maxWidth: '200px' } }>({ classroom.name })</span>,
           )
         }
 
@@ -89,7 +88,7 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
                 onClick={() => onEditPress && onEditPress(
                   'day' in interval
                     ? interval
-                    : {day: day, hour: hour, classrooms: [], groups: []}
+                    : {day: day, hour: hour, classroom: undefined, groups: []}
                 )}
                 children='Editar'
               /> }

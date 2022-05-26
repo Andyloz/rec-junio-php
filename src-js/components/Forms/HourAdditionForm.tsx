@@ -17,21 +17,22 @@ type NormalGroupsResponse = { 'groups-with-classroom': Group[] } | { msg: string
 type OnGuardGroupsResponse = { 'groups-without-classroom': Group[] } | { msg: string }
 
 const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
-  const { day, hour, groups, classrooms } = interval
-  const emptyInterval = groups.length === 0 && classrooms.length === 0
+  const { day, hour, groups, classroom } = interval
+  const emptyInterval = groups.length === 0 && !classroom
   const guardInterval = groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
 
   const occpClassApi = useApi<OccpClassroomsResponse>()
   const freeClassApi = useApi<FreeClassroomsResponse>()
+
   const normalGroupsApi = useApi<NormalGroupsResponse>()
   const onGuardGroupsApi = useApi<OnGuardGroupsResponse>()
 
   useEffect(() => {
-    occpClassApi.doRequest(`api/obtain-free-classrooms/${ user.id_usuario }/${ day }/${ hour }`)
+    occpClassApi.doRequest(`api/obtain-free-classrooms/${ day }/${ hour }`)
   }, [])
 
   useEffect(() => {
-    freeClassApi.doRequest(`api/obtain-free-classrooms/${ user.id_usuario }/${ day }/${ hour }`)
+    freeClassApi.doRequest(`api/obtain-free-classrooms/${ day }/${ hour }`)
   }, [])
 
   useEffect(() => {
@@ -42,19 +43,32 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
     onGuardGroupsApi.doRequest(`api/obtain-groups-without-classroom`)
   }, [])
 
-  const normalGroups = normalGroupsApi.response && 'groups-with-classroom' in normalGroupsApi.response
-    ? normalGroupsApi.response['groups-with-classroom']
-    : undefined
-
-  const onGuardGroups =
-    emptyInterval && onGuardGroupsApi.response && 'groups-without-classroom' in onGuardGroupsApi.response
-      ? onGuardGroupsApi.response['groups-without-classroom']
-      : undefined
+  useEffect(() => {
+    console.log(occpClassApi.response)
+  }, [occpClassApi, freeClassApi])
 
   const selectGroups = {
-    'Con aula': normalGroups,
-    'Sin aula': onGuardGroups,
+    'Con aula': normalGroupsApi.response && 'groups-with-classroom' in normalGroupsApi.response
+      ? normalGroupsApi.response['groups-with-classroom']
+      : undefined,
+    'Sin aula': emptyInterval && onGuardGroupsApi.response && 'groups-without-classroom' in onGuardGroupsApi.response
+      ? onGuardGroupsApi.response['groups-without-classroom']
+      : undefined,
   }
+
+  const selectClassrooms = {
+    'Aulas ocupadas': occpClassApi.response && 'occupied-classrooms' in occpClassApi.response
+      ? occpClassApi.response['occupied-classrooms']
+      : undefined,
+    'Aulas libres': freeClassApi.response && 'free-classrooms' in freeClassApi.response
+      ? freeClassApi.response['free-classrooms']
+      : undefined,
+  }
+  console.log('interval', interval, '\n',
+    'user', user.id_usuario, '\n',
+    'occpClassApi', occpClassApi, '\n',
+    'freeClassApi', freeClassApi, '\n',
+  )
 
   return (
     <form method='post' className='d-flex flex-row align-items-center'>
@@ -65,9 +79,7 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
           Object.entries(selectGroups).map(([title, groups]) => (
             !groups ? undefined : (
               <optgroup key={ title } label={ title }>
-                {
-                  groups.map(g => <option key={ g.id } value={ g.id }>{ g.name }</option>)
-                }
+                { groups.map(g => <option key={ g.id } value={ g.id } children={ g.name } />) }
               </optgroup>
             )
           ))
@@ -77,7 +89,15 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
       <label htmlFor='hour-addition-classroom' className='form-label m-0 mb-2 me-4 mb-sm-0'>Aula</label>
       <select id='hour-addition-classroom' name='hour-addition-classroom' className='form-select mb-3 w-25 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } } disabled={ !emptyInterval }>
-
+        {
+          Object.entries(selectClassrooms).map(([title, classrooms]) => (
+            !classrooms ? undefined : (
+              <optgroup key={ title } label={ title }>
+                { classrooms.map(c => <option key={ c.id } value={ c.id } children={ c.name } />) }
+              </optgroup>
+            )
+          ))
+        }
       </select>
 
       <button

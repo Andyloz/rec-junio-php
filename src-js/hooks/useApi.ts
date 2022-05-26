@@ -11,9 +11,7 @@ const useApi = <T> () => {
       credentials: 'same-origin',
       ...requestProps
     })
-    const text = await response.text()
-    console.log(text)
-    const object = JSON.parse(text)
+    const object = await response.json()
     setPending(false)
     setResponse(object)
   }

@@ -11,13 +11,13 @@ class ScheduleInterval
    * @param int $day
    * @param int $hour
    * @param ScheduleGroup[] $groups
-   * @param ScheduleClassroom[] $classrooms
+   * @param ScheduleClassroom $classroom
    */
   public function __construct(
-    public int   $day,
-    public int   $hour,
-    public array $groups,
-    public array $classrooms
+    public int               $day,
+    public int               $hour,
+    public array             $groups,
+    public ScheduleClassroom $classroom
   )
   {
   }

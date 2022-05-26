@@ -5,7 +5,7 @@ interface ScheduleInterval {
   day: number
   hour: number
   groups: ScheduleGroup[]
-  classrooms: ScheduleClassroom[]
+  classroom?: ScheduleClassroom
 }
 
 export default ScheduleInterval

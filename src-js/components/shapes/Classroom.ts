@@ -1,6 +1,6 @@
 interface Classroom {
-  id: string;
-  name: string;
+  id: number
+  name: string
 }
 
 export default Classroom

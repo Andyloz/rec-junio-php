@@ -46,22 +46,11 @@ class Schedule
           }
         }
 
-        // group Classrooms by id
-        /** @var ScheduleClassroom[] $classroomsById */
-        $classroomsById = [];
-        foreach ($hourRows as $hourRow) {
-          if ($classroomsById[$hourRow->classroomId] ?? false) {
-            $classroomsById[$hourRow->classroomId]->scheduleRowIds[] = $hourRow->id;
-          } else {
-            $classroomsById[$hourRow->classroomId] = new ScheduleClassroom($hourRow->classroomId, $hourRow->classroomName, [$hourRow->id]);
-          }
-        }
-
         $this->scheduleRows["d$day"]["h$hour"] = new ScheduleInterval(
           $hourRows[0]->day,
           $hourRows[0]->hour,
           array_values($groupsById),
-          array_values($classroomsById)
+          new ScheduleClassroom($hourRows[0]->classroomId, $hourRows[0]->classroomName, [array_map(fn ($r) => $r->id, $hourRows)])
         );
 
       }

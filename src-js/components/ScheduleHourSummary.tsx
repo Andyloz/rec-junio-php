@@ -7,6 +7,7 @@ import ScheduleInterval from './shapes/ScheduleInterval'
 interface IProps {
   interval: ScheduleInterval
   user: User
+  onRmGroupPress: (id: number) => void
 }
 
 const fHourIntervals: { [k: number]: string } = {
@@ -27,12 +28,12 @@ const fDays: { [k: number]: string } = {
   5: 'Viernes',
 }
 
-const ScheduleHourSummary: FC<IProps> = ({ interval, user }) => {
+const ScheduleHourSummary: FC<IProps> = ({ interval, user, onRmGroupPress }) => {
   return (
     <section className='mt-4'>
       <h3>Editando la { interval.hour }º hora ({ fHourIntervals[interval.hour] }) del { fDays[interval.day] }</h3>
-      <ScheduleHourTable interval={interval} />
-      <HourAdditionForm user={user} interval={interval} />
+      <ScheduleHourTable interval={ interval } />
+      <HourAdditionForm user={ user } interval={ interval } onRmGroupPress={ onRmGroupPress } />
     </section>
   )
 }

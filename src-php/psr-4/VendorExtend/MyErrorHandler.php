@@ -19,6 +19,7 @@ class MyErrorHandler
     ?LoggerInterface $logger = null
   ): ResponseInterface {
     $response = new MyResponse();
+    error_log($exception->getMessage());
 
     return $response
       ->withJson([
