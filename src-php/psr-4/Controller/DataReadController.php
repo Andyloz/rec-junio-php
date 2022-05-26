@@ -3,10 +3,12 @@
 namespace FAFL\RecJunioPhp\Controller;
 
 use FAFL\RecJunioPhp\Data\Classroom\OccupiedClassroom;
+use FAFL\RecJunioPhp\Data\Classroom\ScheduleClassroom;
 use FAFL\RecJunioPhp\Data\Connection;
 use FAFL\RecJunioPhp\Data\Group\Group;
+use FAFL\RecJunioPhp\Data\Group\ScheduleGroup;
 use FAFL\RecJunioPhp\Data\Schedule\Schedule;
-use FAFL\RecJunioPhp\Data\Schedule\ScheduleRow;
+use FAFL\RecJunioPhp\Data\Schedule\ScheduleInterval;
 use FAFL\RecJunioPhp\Data\User\User;
 use FAFL\RecJunioPhp\Security\Validation;
 use FAFL\RecJunioPhp\VendorExtend\MyResponse;
@@ -33,14 +35,41 @@ class DataReadController
       ]);
 
     $pdo = Connection::getInstance();
-    $query = $pdo->prepare("SELECT id_horario id, dia day, hora hour, grupo groupId, g.nombre groupName, aula classroomId, a.nombre classroomName FROM horario_lectivo " .
-      "JOIN aulas a ON a.id_aula = horario_lectivo.aula JOIN grupos g ON g.id_grupo = horario_lectivo.grupo WHERE usuario = :username AND dia BETWEEN 1 AND 5 AND hora BETWEEN 1 AND 7");
+    $query = $pdo->prepare("
+SELECT
+    JSON_ARRAYAGG(id_horario) ids, 
+    dia day,
+    hora hour,
+    JSON_OBJECT('id', a.id_aula, 'name', a.nombre, 'scheduleRowIds', JSON_ARRAYAGG(id_horario)) `classroom`,
+    JSON_ARRAYAGG(JSON_OBJECT('id', g.id_grupo, 'name', g.nombre, 'scheduleRowId', id_horario)) `groups`
+FROM horario_lectivo 
+    JOIN aulas a ON a.id_aula = horario_lectivo.aula
+    JOIN grupos g ON g.id_grupo = horario_lectivo.grupo
+WHERE usuario = :username
+  AND dia BETWEEN 1 AND 5 
+  AND hora BETWEEN 1 AND 7
+GROUP BY day, hour, a.id_aula"
+    );
     $query->bindParam('username', $userID, PDO::PARAM_INT);
     $query->execute();
 
-    $rawRows = $query->fetchAll();
-    $scheduleRows = array_map(fn($row) => new ScheduleRow(...$row), $rawRows);
-    $schedule = new Schedule($scheduleRows);
+    $rawIntervals = $query->fetchAll();
+    $scheduleIntervals = array_map(
+      function ($r) {
+        $r['ids'] = json_decode($r['ids']);
+        $r['classroom'] = json_decode($r['classroom']);
+        $r['classroom'] = (array) $r['classroom'];
+        $r['classroom'] = new ScheduleClassroom(...$r['classroom']);
+        $r['groups'] = json_decode($r['groups']);
+        $r['groups'] = array_map(function ($g) {
+          $g = (array) $g;
+          return new ScheduleGroup(...$g);
+        }, $r['groups']);
+        return new ScheduleInterval(...$r);
+      },
+      $rawIntervals
+    );
+    $schedule = new Schedule($scheduleIntervals);
 
     return $response->withJson([
       'schedule' => $schedule->scheduleRows,

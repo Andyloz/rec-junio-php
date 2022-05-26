@@ -8,16 +8,18 @@ use FAFL\RecJunioPhp\Data\Group\ScheduleGroup;
 class ScheduleInterval
 {
   /**
+   * @param int[] $ids
    * @param int $day
    * @param int $hour
-   * @param ScheduleGroup[] $groups
    * @param ScheduleClassroom $classroom
+   * @param ScheduleGroup[] $groups
    */
   public function __construct(
+    public array             $ids,
     public int               $day,
     public int               $hour,
+    public ScheduleClassroom $classroom,
     public array             $groups,
-    public ScheduleClassroom $classroom
   )
   {
   }

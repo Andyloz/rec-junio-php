@@ -1,13 +1,12 @@
-import React, { FC, useEffect } from 'react'
+import React, { FC, MouseEventHandler, useEffect } from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import useApi from '../../hooks/useApi'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
-import User from '../shapes/User'
 
 interface IProps {
-  user: User
   interval: ScheduleInterval
+  onAddPressed: (fd: FormData) => void
 }
 
 type OccpClassroomsResponse = { 'occupied-classrooms': Classroom[] } | { msg: string }
@@ -16,7 +15,7 @@ type FreeClassroomsResponse = { 'free-classrooms': Classroom[] } | { msg: string
 type NormalGroupsResponse = { 'groups-with-classroom': Group[] } | { msg: string }
 type OnGuardGroupsResponse = { 'groups-without-classroom': Group[] } | { msg: string }
 
-const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
+const HourAdditionForm: FC<IProps> = ({ interval, onAddPressed }) => {
   const { day, hour, groups, classroom } = interval
   const emptyInterval = groups.length === 0 && !classroom
   const guardInterval = groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
@@ -61,8 +60,16 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
       : undefined,
   }
 
+  const addPressHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault()
+    if (e.currentTarget.checkValidity()) {
+      const formData = new FormData(e.currentTarget)
+      onAddPressed(formData)
+    }
+  }
+
   return (
-    <form method='post' className='d-flex flex-row align-items-center'>
+    <form method='post' className='d-flex flex-row align-items-center' onClick={ addPressHandler }>
       <label htmlFor='hour-addition-group' className='form-label m-0 mb-2 me-4 mb-sm-0'>Grupo</label>
       <select id='hour-addition-group' name='hour-addition-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>

@@ -13,9 +13,9 @@ const ScheduleHourTable: FC<IProps> = ({ interval, onRmGroupPress }) => {
   const rows = interval.classroom
     ? interval.groups.map(group => (
       <tr key={ group.id }>
-        <td>{ group.name } ({ classroom?.name })</td>
-        <td className='align-middle'>
-          <button className='btn btn-link' onClick={ () => onRmGroupPress(group.id) }>Quitar</button>
+        <td className='text-center align-middle'>{ group.name } ({ classroom?.name })</td>
+        <td className='text-center'>
+          <button className='btn btn-link' onClick={ () => onRmGroupPress(group.scheduleRowIds) }>Quitar</button>
         </td>
       </tr>
     ))

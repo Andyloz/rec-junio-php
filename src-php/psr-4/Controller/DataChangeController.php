@@ -238,7 +238,7 @@ class DataChangeController
     $query->execute();
 
     return $response->withJson([
-      'msg' => 'El grupo ' . $resultGroup['nombre'] . ' en el aula ' . $resultClassroom['nombre'] . ' ha sido insertado con éxito en el horario del profesor ' .
+      'success-msg' => 'El grupo ' . $resultGroup['nombre'] . ' en el aula ' . $resultClassroom['nombre'] . ' ha sido insertado con éxito en el horario del profesor ' .
         $body['id-user']
     ]);
   }
