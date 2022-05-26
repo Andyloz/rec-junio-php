@@ -28,15 +28,13 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   useEffect(() => {
     if (rmGroupResponse) {
-
       if (rmGroupResponse['msg']) {
-
+        alert(rmGroupResponse['msg'])
       } else if (rmGroupResponse['error']) {
-
+        alert(rmGroupResponse['error'])
       } else {  // Success
 
       }
-
     }
   }, [rmGroupResponse])
 
@@ -72,7 +70,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
                 <>
                   <TeacherSchedule user={ selectedTeacher } type={ UserType.Admin } onEditPress={ handleEditPress } />
                   { selectedInterval && <ScheduleHourSummary interval={ selectedInterval } user={ selectedTeacher }
-                                                             onRmGroupPress={ handleRmGroupPress } message/> }
+                                                             onRmGroupPress={ handleRmGroupPress }/> }
                 </>
               ) }
             </>

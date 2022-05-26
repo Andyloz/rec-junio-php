@@ -28,7 +28,7 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
   const onGuardGroupsApi = useApi<OnGuardGroupsResponse>()
 
   useEffect(() => {
-    occpClassApi.doRequest(`api/obtain-free-classrooms/${ day }/${ hour }`)
+    occpClassApi.doRequest(`api/obtain-occupied-classrooms/${ day }/${ hour }`)
   }, [])
 
   useEffect(() => {
@@ -42,10 +42,6 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
   useEffect(() => {
     onGuardGroupsApi.doRequest(`api/obtain-groups-without-classroom`)
   }, [])
-
-  useEffect(() => {
-    console.log(occpClassApi.response)
-  }, [occpClassApi, freeClassApi])
 
   const selectGroups = {
     'Con aula': normalGroupsApi.response && 'groups-with-classroom' in normalGroupsApi.response
@@ -64,11 +60,6 @@ const HourAdditionForm: FC<IProps> = ({ user, interval }) => {
       ? freeClassApi.response['free-classrooms']
       : undefined,
   }
-  console.log('interval', interval, '\n',
-    'user', user.id_usuario, '\n',
-    'occpClassApi', occpClassApi, '\n',
-    'freeClassApi', freeClassApi, '\n',
-  )
 
   return (
     <form method='post' className='d-flex flex-row align-items-center'>

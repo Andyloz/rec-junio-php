@@ -8,9 +8,10 @@ interface IProps {
 
 const ScheduleHourTable: FC<IProps> = ({ interval, onRmGroupPress }) => {
 
-  if (interval) {
-    const classroom = interval.classroom
-    interval.groups.map(group => (
+  const classroom = interval.classroom
+
+  const rows = interval.classroom
+    ? interval.groups.map(group => (
       <tr key={ group.id }>
         <td>{ group.name } ({ classroom?.name })</td>
         <td className='align-middle'>
@@ -18,9 +19,12 @@ const ScheduleHourTable: FC<IProps> = ({ interval, onRmGroupPress }) => {
         </td>
       </tr>
     ))
-  } else {
-    rows.push(<tr></tr>)
-  }
+    : (
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    )
 
   return (
     <div className='table-responsive w-50'>
