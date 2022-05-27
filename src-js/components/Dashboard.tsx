@@ -18,7 +18,7 @@ type addGroupResponse = Record<'msg' | 'error' | 'success-msg', string>
 
 const Dashboard: FC<IProp> = ({ user, logout }) => {
   const [selectedTeacher, setSelectedTeacher] = useState<User>()
-  const [selectedInterval, setSelectedInterval] = useState<ScheduleInterval>()
+  const [selectedIntervalData, setSelectedIntervalData] = useState<{ day: number, hour: number, user: User, interval?: ScheduleInterval }>()
   const [hourFormMessage, setHourFormMessage] = useState<{ msg: string, className: string }>()
   const { response: rmGroupResponse, doRequest: doRmGroupRequest } = useApi<rmGroupResponse>()
   const { response: addGroupResponse, doRequest: doAddGroupRequest } = useApi<addGroupResponse>()
@@ -26,7 +26,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
   const isAdmin = user.tipo === UserType.Admin
 
   useEffect(() => {
-    setSelectedInterval(undefined)
+    setSelectedIntervalData(undefined)
   }, [selectedTeacher])
 
   useEffect(() => {
@@ -55,13 +55,12 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   const handleTeacherSelect = (teacher: User) => setSelectedTeacher(teacher)
 
-  const handleEditPress = (interval: ScheduleInterval) => {
+  const handleEditPress = (day: number, hour: number, user: User, interval?: ScheduleInterval) => {
     setHourFormMessage(undefined)
-    setSelectedInterval(interval)
+    setSelectedIntervalData({ day, hour, user, interval })
   }
 
   const handleRmGroupPress = (id: number) => {
-    console.log(id)
     const data = {
       'id-schedule': id,
     }
@@ -86,7 +85,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
       <WelcomeLayer user={ user } onPressedLogout={ logout } />
       {
         !isAdmin
-          ? <TeacherSchedule user={ user } type={ UserType.Normal } />
+          ? <TeacherSchedule user={ user } type={ UserType.Normal } onEditPress={handleEditPress} />
           : (
             <>
               <TeacherSelectorForm onPressedSubmit={ handleTeacherSelect } />
@@ -94,9 +93,9 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
                 <>
                   <TeacherSchedule user={ selectedTeacher } type={ UserType.Admin } onEditPress={ handleEditPress } />
                   {
-                    selectedInterval &&
+                    selectedIntervalData &&
                     <ScheduleHourSummary
-                      interval={ selectedInterval }
+                      intervalData={ selectedIntervalData }
                       onRmGroupPress={ handleRmGroupPress }
                       onAddPressed={ handleAddPressed }
                       message={ hourFormMessage }

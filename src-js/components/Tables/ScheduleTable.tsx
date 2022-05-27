@@ -9,7 +9,8 @@ import ScheduleClassroom from '../shapes/ScheduleClassroom'
 interface IProps {
   user: User
   type: UserType
-  onEditPress?(interval: ScheduleInterval): void
+
+  onEditPress(day: number, hour: number, user: User, interval?: ScheduleInterval): void
 }
 
 const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
@@ -28,11 +29,6 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
   }, [user])
 
   const builtRows = useMemo(() => {
-
-    if (!response || response.schedule) {
-      return undefined
-    }
-
     const rowHeaders = [
       <></>,
       <th key={ `th${ 1 }` } className='text-center align-middle' scope='row'>8:15 - 9:15</th>,
@@ -63,10 +59,10 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
           continue
         }
 
-        const interval = response.schedule[`d${ day }`][`h${ hour }`]
+        const interval = response?.schedule[day][hour]
         const col = []
 
-        if ('day' in interval) {
+        if (interval && 'day' in interval) {
           const groups = interval.groups
             .map(g => g.name)
             .join(' / ')
@@ -85,11 +81,10 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
               <a
                 role='button'
                 className='link-primary'
-                onClick={() => onEditPress && onEditPress(
-                  'day' in interval
-                    ? interval
-                    : {day: day, hour: hour, classroom: undefined, groups: []}
-                )}
+                onClick={ () => onEditPress(
+                  day, hour, user,
+                  interval && 'day' in interval ? interval : undefined,
+                ) }
                 children='Editar'
               /> }
           </Cell>,
@@ -115,63 +110,7 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
         </tr>
         </thead>
         <tbody>
-        { response && builtRows
-          || (
-            <>
-              <tr>
-                <th className='text-center' scope='row'>8:15 - 9:15</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <th className='text-center' scope='row'>9:15 - 10:15</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <th className='text-center' scope='row'>10:15 - 11:15</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <th className='text-center' scope='row'>11:15 - 11:45</th>
-                <td colSpan={ 5 } className='text-center align-middle'>RECREO</td>
-              </tr>
-              <tr>
-                <th className='text-center' scope='row'>11:45 - 12:45</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <th className='text-center' scope='row'>12:45 - 13:45</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <th className='text-center' scope='row'>13:45 - 14:45</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-              </tr>
-            </>
-          ) }
+        { builtRows }
         </tbody>
       </table>
     </div>

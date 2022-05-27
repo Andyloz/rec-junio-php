@@ -12,7 +12,6 @@ const useApi = <T> () => {
       ...requestProps
     })
     const object = await response.json()
-    console.log(object)
     setPending(false)
     setResponse(object)
   }

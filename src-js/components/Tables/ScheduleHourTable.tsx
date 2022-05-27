@@ -1,21 +1,22 @@
 import React, { FC } from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
+import User from '../shapes/User'
 
 interface IProps {
-  interval: ScheduleInterval
+  intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
   onRmGroupPress: (id: number) => void
 }
 
-const ScheduleHourTable: FC<IProps> = ({ interval, onRmGroupPress }) => {
+const ScheduleHourTable: FC<IProps> = ({ intervalData, onRmGroupPress }) => {
+  const { interval } = intervalData
 
-  const classroom = interval.classroom
 
-  const rows = interval.classroom
+  const rows = interval
     ? interval.groups.map(group => (
       <tr key={ group.id }>
-        <td className='text-center align-middle'>{ group.name } ({ classroom?.name })</td>
+        <td className='text-center align-middle'>{ group.name } ({ interval.classroom?.name })</td>
         <td className='text-center'>
-          <button className='btn btn-link' onClick={ () => onRmGroupPress(group.scheduleRowId) }>Quitar</button>
+          <button className='btn btn-link p-0' onClick={ () => onRmGroupPress(group.scheduleRowId) }>Quitar</button>
         </td>
       </tr>
     ))

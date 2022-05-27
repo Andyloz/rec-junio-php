@@ -2,9 +2,10 @@ import React, { FC } from 'react'
 import HourAdditionForm from './Forms/HourAdditionForm'
 import ScheduleHourTable from './Tables/ScheduleHourTable'
 import ScheduleInterval from './shapes/ScheduleInterval'
+import User from './shapes/User'
 
 interface IProps {
-  interval: ScheduleInterval
+  intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
   onRmGroupPress: (id: number) => void
   message?: { msg: string, className: string }
   onAddPressed: (fd: FormData) => void
@@ -28,12 +29,12 @@ const fDays: { [k: number]: string } = {
   5: 'Viernes',
 }
 
-const ScheduleHourSummary: FC<IProps> = ({ interval, onRmGroupPress, onAddPressed, message }) => {
+const ScheduleHourSummary: FC<IProps> = ({ intervalData, onRmGroupPress, onAddPressed, message }) => {
   return (
     <section className='mt-4'>
-      <h3>Editando la { interval.hour }º hora ({ fHourIntervals[interval.hour] }) del { fDays[interval.day] }</h3>
-      <ScheduleHourTable interval={ interval } onRmGroupPress={ onRmGroupPress } />
-      <HourAdditionForm interval={ interval } onAddPressed={ onAddPressed } />
+      <h3>Editando la { intervalData.hour }º hora ({ fHourIntervals[intervalData.hour] }) del { fDays[intervalData.day] }</h3>
+      <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress } />
+      <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed } />
       { message && <div className={ 'alert ' + message.className } role='alert'>{ message.msg }</div> }
     </section>
   )

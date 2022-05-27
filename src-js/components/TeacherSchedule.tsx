@@ -7,7 +7,7 @@ import ScheduleInterval from './shapes/ScheduleInterval'
 interface IProps {
   user: User
   type: UserType
-  onEditPress?(interval: ScheduleInterval): void
+  onEditPress(day: number, hour: number, user: User, interval?: ScheduleInterval): void
 }
 
 const TeacherSchedule: FC<IProps> = ({ user, type, onEditPress }) => {

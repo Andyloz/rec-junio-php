@@ -1,11 +1,12 @@
-import React, {FC, FormEventHandler, MouseEventHandler, useEffect} from 'react'
+import React, { FC, FormEventHandler, useEffect } from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import useApi from '../../hooks/useApi'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
+import User from '../shapes/User'
 
 interface IProps {
-  interval: ScheduleInterval
+  intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
   onAddPressed: (fd: FormData) => void
 }
 
@@ -15,10 +16,16 @@ type FreeClassroomsResponse = { 'free-classrooms': Classroom[] } | { msg: string
 type NormalGroupsResponse = { 'groups-with-classroom': Group[] } | { msg: string }
 type OnGuardGroupsResponse = { 'groups-without-classroom': Group[] } | { msg: string }
 
-const HourAdditionForm: FC<IProps> = ({ interval, onAddPressed }) => {
-  const { day, hour, groups, classroom } = interval
-  const emptyInterval = groups.length === 0 && !classroom
-  const guardInterval = groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
+const HourAdditionForm: FC<IProps> = ({ intervalData, onAddPressed }) => {
+  const { day, hour, interval } = intervalData
+
+  const emptyInterval = !interval
+  const guardInterval = !!interval && interval.groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
+
+  // log guardInterval with useEffect
+  useEffect(() => {
+    console.log('guardInterval', guardInterval)
+  }, [guardInterval])
 
   const occpClassApi = useApi<OccpClassroomsResponse>()
   const freeClassApi = useApi<FreeClassroomsResponse>()
@@ -64,7 +71,6 @@ const HourAdditionForm: FC<IProps> = ({ interval, onAddPressed }) => {
     e.preventDefault()
     if (e.currentTarget.checkValidity()) {
       const formData = new FormData(e.currentTarget)
-      console.log(formData)
       onAddPressed(formData)
     }
   }

@@ -1,7 +1,7 @@
 import Group from './Group'
 
 interface ScheduleGroup extends Group {
-  scheduleRowIds: number[]
+  scheduleRowId: number
 }
 
 export default ScheduleGroup
