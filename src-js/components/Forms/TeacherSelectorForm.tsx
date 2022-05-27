@@ -15,7 +15,7 @@ const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
   }, [])
 
   const teachersList = useMemo(() => {
-    if (teachersLoading) return undefined
+    if (teachersLoading || !response.teachers) return undefined
 
     return response.teachers.reduce((list, t) => {
       list[t.id_usuario] = t

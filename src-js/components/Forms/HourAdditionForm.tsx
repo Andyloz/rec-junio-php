@@ -1,4 +1,4 @@
-import React, { FC, MouseEventHandler, useEffect } from 'react'
+import React, {FC, FormEventHandler, MouseEventHandler, useEffect} from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import useApi from '../../hooks/useApi'
 import Group from '../shapes/Group'
@@ -60,18 +60,19 @@ const HourAdditionForm: FC<IProps> = ({ interval, onAddPressed }) => {
       : undefined,
   }
 
-  const addPressHandler: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const addPressHandler: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
     if (e.currentTarget.checkValidity()) {
       const formData = new FormData(e.currentTarget)
+      console.log(formData)
       onAddPressed(formData)
     }
   }
 
   return (
-    <form method='post' className='d-flex flex-row align-items-center' onClick={ addPressHandler }>
-      <label htmlFor='hour-addition-group' className='form-label m-0 mb-2 me-4 mb-sm-0'>Grupo</label>
-      <select id='hour-addition-group' name='hour-addition-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
+    <form method='post' className='d-flex flex-row align-items-center' onSubmit={ addPressHandler }>
+      <label htmlFor='id-group' className='form-label m-0 mb-2 me-4 mb-sm-0'>Grupo</label>
+      <select id='id-group' name='id-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>
         {
           Object.entries(selectGroups).map(([title, groups]) => (
@@ -84,8 +85,8 @@ const HourAdditionForm: FC<IProps> = ({ interval, onAddPressed }) => {
         }
       </select>
 
-      <label htmlFor='hour-addition-classroom' className='form-label m-0 mb-2 me-4 mb-sm-0'>Aula</label>
-      <select id='hour-addition-classroom' name='hour-addition-classroom' className='form-select mb-3 w-25 me-4 mb-sm-0'
+      <label htmlFor='id-classroom' className='form-label m-0 mb-2 me-4 mb-sm-0'>Aula</label>
+      <select id='id-classroom' name='id-classroom' className='form-select mb-3 w-25 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } } disabled={ !emptyInterval }>
         {
           Object.entries(selectClassrooms).map(([title, classrooms]) => (

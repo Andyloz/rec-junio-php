@@ -15,7 +15,7 @@ const ScheduleHourTable: FC<IProps> = ({ interval, onRmGroupPress }) => {
       <tr key={ group.id }>
         <td className='text-center align-middle'>{ group.name } ({ classroom?.name })</td>
         <td className='text-center'>
-          <button className='btn btn-link' onClick={ () => onRmGroupPress(group.scheduleRowIds) }>Quitar</button>
+          <button className='btn btn-link' onClick={ () => onRmGroupPress(group.scheduleRowId) }>Quitar</button>
         </td>
       </tr>
     ))

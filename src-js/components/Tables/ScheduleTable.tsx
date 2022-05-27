@@ -29,7 +29,7 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
 
   const builtRows = useMemo(() => {
 
-    if (!response) {
+    if (!response || response.schedule) {
       return undefined
     }
 
