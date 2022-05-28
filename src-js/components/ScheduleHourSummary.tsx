@@ -5,10 +5,10 @@ import ScheduleInterval from './shapes/ScheduleInterval'
 import User from './shapes/User'
 
 interface IProps {
+  message?: { msg: string, className: string }
   intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
   onRmGroupPress: (id: number) => void
-  message?: { msg: string, className: string }
-  onAddPressed: (fd: FormData) => void
+  onAddPressed: (details: {day: number, hour: number, userId: number, groupId: number, classroomId: number}) => void
 }
 
 const fHourIntervals: { [k: number]: string } = {

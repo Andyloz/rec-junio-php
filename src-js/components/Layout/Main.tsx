@@ -1,106 +1,86 @@
-import React, { FC, ReactNode, useEffect, useState } from 'react'
+import React, { FC, ReactNode, useEffect, useRef, useState } from 'react'
 import LoginForm from '../Forms/LoginForm'
 import Dashboard from '../Dashboard'
-import useApi, { useApi2 } from '../../hooks/useApi'
+import { useApi2, useApi2With } from '../../hooks/useApi'
 import User from '../shapes/User'
+import ApiMessage from '../shapes/ApiMessage'
+import Message from '../shapes/Message'
+
+type LoginDetails = { username: string, password: string }
+type LoginResponse = { user: User } | Record<'msg' | 'error', string>
 
 type SessionResponse = { user: User } | Record<'not-logged' | 'error' | 'forbidden' | 'time', string>
-type LoginResponse = { user: User } | Record<'msg' | 'error', string>
 
 const Container: FC<{ children: ReactNode }> = ({ children }) => (
   <main className='flex-grow-1'>{ children }</main>
 )
 
 const Main = () => {
-  const { response: sessionResponse, doRequest: doSessionRequest } = useApi<SessionResponse>()
-  const { response: loginResponse, doRequest: doLoginRequest } = useApi<LoginResponse>()
-  const { response: logoutConfirm, doRequest: doLogoutRequest } = useApi<{ msg: string }>()
-
-  const { doRequest: doSessionRequest2 } = useApi2('api/session-status')
-
-  useEffect(() => {
-
-  }, [])
+  const { doRequest: doSessionRequest } = useApi2<SessionResponse>('api/session-status')
+  const { doRequest: doLoginRequest } = useApi2With.bodyParams<LoginDetails, LoginResponse>('api/login')
+  const { doRequest: doLogoutRequest } = useApi2<ApiMessage>('api/logout', { method: 'POST' })
 
   const [user, setUser] = useState<User>()
-  const [loginMessage, setLoginMessage] = useState<string>()
-  const [errorMessage, setLoginError] = useState<string>()
+  const [loginMessage, setLoginMessage] = useState<Message<'info' | 'error' | 'warning'>>()
 
-  // session checking
+  const sessionInterval = useRef<number | undefined>(undefined)
+
+  const refreshSession = () => {
+    doSessionRequest().then(res => {
+      if ('time' in res) {
+        setLoginMessage({ content: res['time'], type: 'info' })
+      } else if ('forbidden' in res) {
+        setLoginMessage({ content: res['forbidden'], type: 'error' })
+      } else { // is User
+        setUser(res['user'])
+      }
+    })
+  }
+
+  const clearSessionInterval = () => {
+    window.clearInterval(sessionInterval.current)
+    sessionInterval.current = undefined
+  }
+
   useEffect(() => {
-    doSessionRequest('api/session-status')
-    const interval = setInterval(
-      () => doSessionRequest('api/session-status'), 60000,
-    )
-    return () => clearInterval(interval)
+    refreshSession()
+    sessionInterval.current = window.setInterval(refreshSession, 60000)
+    return clearSessionInterval
   }, [])
 
-  // on session response change
-  useEffect(() => {
-    if (sessionResponse) {
-
-      if ('time' in sessionResponse) {
-        setLoginMessage(sessionResponse['time'])
-      } else if ('forbidden' in sessionResponse) {
-        setLoginMessage(sessionResponse['forbidden'])
+  const handleLoginPress = (details: LoginDetails) => {
+    doLoginRequest(details).then(loginRes => {
+      if ('msg' in loginRes) {
+        setLoginMessage({ content: loginRes['msg'], type: 'warning' })
+      } else if ('error' in loginRes) {
+        setLoginMessage({ content: loginRes['error'], type: 'error' })
       } else { // is User
-        setUser(sessionResponse['user'])
+        setUser(loginRes['user'])
       }
-
-    }
-  }, [sessionResponse])
-
-  // on logout confirm change
-  useEffect(() => {
-    if (logoutConfirm && 'msg' in logoutConfirm) {
-      setUser(undefined)
-    }
-  }, [logoutConfirm])
-
-  // on login response change
-  useEffect(() => {
-    if (loginResponse) {
-
-      if ('msg' in loginResponse) {
-        setLoginMessage(loginResponse['msg'])
-      } else if ('error' in loginResponse) {
-        setLoginError(loginResponse['error'])
-      } else { // is User
-        setUser(loginResponse['user'])
-      }
-
-    }
-  }, [loginResponse])
+    })
+  }
 
   if (!user) return (
     <Container>
       <LoginForm
-        onPressedLogin={ (fd) => {
-          const data = Object.fromEntries(fd.entries())
-          doLoginRequest('api/login', {
-            method: 'POST',
-            body: JSON.stringify(data),
-          })
-        } }
-        message={ loginMessage }
-        error={ errorMessage }
-        hideMessage={ () => {
-          setLoginMessage(undefined)
-          setLoginError(undefined)
-        } }
+        msg={ loginMessage }
+        onPressedLogin={ handleLoginPress }
+        onInputsChange={ () => setLoginMessage(undefined) }
       />
     </Container>
   )
+
+  const handleLogoutPress = () => {
+    doLogoutRequest().then((res) => {
+      if ('msg' in res) setUser(undefined)
+    })
+  }
 
   return (
     <Container>
       <Dashboard
         user={ user }
-        logout={ () => {
-          doLogoutRequest('api/logout', {
-            method: 'POST',
-          })
-        } }
+        logout={ handleLogoutPress }
       />
     </Container>
   )

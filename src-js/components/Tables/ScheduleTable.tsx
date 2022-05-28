@@ -9,8 +9,7 @@ import { buildParametrizedUrl, useApi2With } from '../../hooks/useApi'
 interface IProps {
   user: User
   type: UserType
-
-  onEditPress(day: number, hour: number, user: User, interval?: ScheduleInterval): void
+  onEditPress: (day: number, hour: number, user: User, interval?: ScheduleInterval) => void
 }
 
 const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
@@ -92,7 +91,8 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
                   interval && 'day' in interval ? interval : undefined,
                 ) }
                 children='Editar'
-              /> }
+              />
+            }
           </Cell>,
         )
       }
@@ -106,17 +106,17 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
     <div className='table-responsive'>
       <table className='table table-bordered mt-4'>
         <thead className='table-primary'>
-        <tr className='text-center'>
-          <th scope='col'></th>
-          <th scope='col'>Lunes</th>
-          <th scope='col'>Martes</th>
-          <th scope='col'>Miércoles</th>
-          <th scope='col'>Jueves</th>
-          <th scope='col'>Viernes</th>
-        </tr>
+          <tr className='text-center'>
+            <th scope='col'></th>
+            <th scope='col'>Lunes</th>
+            <th scope='col'>Martes</th>
+            <th scope='col'>Miércoles</th>
+            <th scope='col'>Jueves</th>
+            <th scope='col'>Viernes</th>
+          </tr>
         </thead>
         <tbody>
-        { builtRows }
+          { builtRows }
         </tbody>
       </table>
     </div>

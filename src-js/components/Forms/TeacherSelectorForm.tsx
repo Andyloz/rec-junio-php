@@ -1,6 +1,6 @@
-import React, { FC, FormEventHandler, useEffect, useMemo } from 'react'
+import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
 import User from '../shapes/User'
-import useApi from '../../hooks/useApi'
+import useApi, { useApi2 } from '../../hooks/useApi'
 
 interface IProps {
   onPressedSubmit: (user: User) => void
@@ -9,26 +9,32 @@ interface IProps {
 const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
   const { response, doRequest } = useApi<{ teachers: User[] }>() // todo: handle message arrive
   const teachersLoading = typeof response === 'undefined'
+  const [teachers, setTeachers] = useState<{ [userId: number]: User }>()
+
+  const { doRequest: doTeachersRequest } = useApi2<undefined | { teachers: User[] }>('api/obtain-teachers')
 
   useEffect(() => {
-    doRequest('api/obtain-teachers')
+    doTeachersRequest().then((res) => {
+      if (!res || !res.teachers) {
+        return
+      }
+      setTeachers(
+        res.teachers.reduce((list, user) => {
+          list[user.id_usuario] = user
+          return list
+        }, {} as { [userId: number]: User }),
+      )
+    })
   }, [])
 
-  const teachersList = useMemo(() => {
-    if (teachersLoading || !response.teachers) return undefined
-
-    return response.teachers.reduce((list, t) => {
-      list[t.id_usuario] = t
-      return list
-    }, {} as { [userId: number]: User })
-  }, [response])
+  const teacherRef = useRef<HTMLSelectElement>(null)
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    if (teachersList) {
-      const formData = new FormData(e.currentTarget)
-      const userId = parseInt(formData.get('teacher-selector') as string)
-      onPressedSubmit(teachersList[userId])
+    if (teachers) {
+      onPressedSubmit({
+        'teacher-selector': teacherRef.current?.value as string
+      })
     }
   }
 
@@ -38,10 +44,10 @@ const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
         Seleccione el profesor
         { teachersLoading && <strong>(cargando la lista de profesores)</strong> }
       </label>
-      <select id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
+      <select ref={teacherRef} id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>
         {
-          teachersList && Object.entries(teachersList).map(([id, teacher]) => (
+          teachers && Object.entries(teachers).map(([id, teacher]) => (
             <option key={ id } value={ id }>{ teacher.nombre }</option>
           ))
         }

@@ -6,22 +6,29 @@ import TeacherSelectorForm from './Forms/TeacherSelectorForm'
 import WelcomeLayer from './WelcomeLayer'
 import ScheduleInterval from './shapes/ScheduleInterval'
 import ScheduleHourSummary from './ScheduleHourSummary'
-import useApi from '../hooks/useApi'
+import useApi, { useApi2With } from '../hooks/useApi'
 
 interface IProp {
   user: User
   logout: () => void
 }
 
-type rmGroupResponse = Record<'msg' | 'error' | 'success-msg', string>
-type addGroupResponse = Record<'msg' | 'error' | 'success-msg', string>
+type RmGroupRequest = { 'remove-group': number }
+type AddGroupRequest = { day: number, hour: number, 'id-user': number, 'id-group': number, 'id-classroom': number }
+
+type RmGroupResponse = Record<'msg' | 'error' | 'success-msg', string>
+type AddGroupResponse = Record<'msg' | 'error' | 'success-msg', string>
 
 const Dashboard: FC<IProp> = ({ user, logout }) => {
   const [selectedTeacher, setSelectedTeacher] = useState<User>()
   const [selectedIntervalData, setSelectedIntervalData] = useState<{ day: number, hour: number, user: User, interval?: ScheduleInterval }>()
   const [hourFormMessage, setHourFormMessage] = useState<{ msg: string, className: string }>()
-  const { response: rmGroupResponse, doRequest: doRmGroupRequest } = useApi<rmGroupResponse>()
-  const { response: addGroupResponse, doRequest: doAddGroupRequest } = useApi<addGroupResponse>()
+
+  const { response: rmGroupResponse, doRequest: doRmGroupRequest } = useApi<RmGroupResponse>()
+  const { response: addGroupResponse, doRequest: doAddGroupRequest } = useApi<AddGroupResponse>()
+
+  const { doRequest: doRmGroupRequest2 } = useApi2With.bodyParams<{ 'id-schedule': number }, RmGroupResponse>('api/remove-group-in-hour', { method: 'DELETE' })
+  const { doRequest: doAddGroupRequest2 } = useApi2With.bodyParams<AddGroupRequest, AddGroupResponse>('api/insert-group-in-hour')
 
   const isAdmin = user.tipo === UserType.Admin
 
@@ -61,14 +68,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
   }
 
   const handleRmGroupPress = (id: number) => {
-    const data = {
-      'id-schedule': id,
-    }
-
-    doRmGroupRequest('api/remove-group-in-hour', {
-      method: 'DELETE',
-      body: JSON.stringify(data),
-    })
+    doRmGroupRequest2({ 'id-schedule': id })
   }
 
   const handleAddPressed = (fd: FormData) => {
@@ -85,7 +85,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
       <WelcomeLayer user={ user } onPressedLogout={ logout } />
       {
         !isAdmin
-          ? <TeacherSchedule user={ user } type={ UserType.Normal } onEditPress={handleEditPress} />
+          ? <TeacherSchedule user={ user } type={ UserType.Normal } onEditPress={ handleEditPress } />
           : (
             <>
               <TeacherSelectorForm onPressedSubmit={ handleTeacherSelect } />
