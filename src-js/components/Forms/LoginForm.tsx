@@ -40,7 +40,9 @@ const LoginForm: FC<IProps> = ({ msg, onPressedLogin, onInputsChange }) => {
   const title = (
     <div className='d-flex flex-column'>
       <h2 className='text-center'>
-        <span className='display-1 d-md-none' style={ { fontSize: titleSizeMatches ? '50px' : undefined } }>Iniciar sesión</span>
+        <span className='display-1 d-md-none' style={ { fontSize: titleSizeMatches ? '50px' : undefined } }>
+          Iniciar sesión
+        </span>
         <span className='display-3 d-none d-md-block'>Iniciar sesión</span>
       </h2>
       { messageContainer }

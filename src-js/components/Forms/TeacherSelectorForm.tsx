@@ -1,17 +1,16 @@
-import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
+import React, {FC, FormEventHandler, useEffect, useRef, useState} from 'react'
 import User from '../shapes/User'
-import useApi, { useApi2 } from '../../hooks/useApi'
+import {useApi2} from '../../hooks/useApi'
 
 interface IProps {
-  onPressedSubmit: (user: User) => void
+  onShowSchedulePressed: (teacher: User) => void
 }
 
-const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
-  const { response, doRequest } = useApi<{ teachers: User[] }>() // todo: handle message arrive
-  const teachersLoading = typeof response === 'undefined'
+const TeacherSelectorForm: FC<IProps> = ({ onShowSchedulePressed }) => {
   const [teachers, setTeachers] = useState<{ [userId: number]: User }>()
 
-  const { doRequest: doTeachersRequest } = useApi2<undefined | { teachers: User[] }>('api/obtain-teachers')
+  // todo: handle message arrive
+  const { doRequest: doTeachersRequest } = useApi2<{ teachers: User[] }>('api/obtain-teachers')
 
   useEffect(() => {
     doTeachersRequest().then((res) => {
@@ -32,9 +31,8 @@ const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
     if (teachers) {
-      onPressedSubmit({
-        'teacher-selector': teacherRef.current?.value as string
-      })
+      const userId = Number(teacherRef.current?.value)
+      if (!isNaN(userId)) onShowSchedulePressed(teachers[userId])
     }
   }
 
@@ -42,9 +40,9 @@ const TeacherSelectorForm: FC<IProps> = ({ onPressedSubmit }) => {
     <form className='d-flex flex-wrap align-items-center mt-4' onSubmit={ handleSubmit }>
       <label htmlFor='teacher-selector' className='form-label m-0 mb-2 me-4 mb-sm-0'>
         Seleccione el profesor
-        { teachersLoading && <strong>(cargando la lista de profesores)</strong> }
+        { !teachers && <strong>(cargando la lista de profesores)</strong> }
       </label>
-      <select ref={teacherRef} id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
+      <select ref={ teacherRef } id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
               style={ { maxWidth: 'max-content' } }>
         {
           teachers && Object.entries(teachers).map(([id, teacher]) => (

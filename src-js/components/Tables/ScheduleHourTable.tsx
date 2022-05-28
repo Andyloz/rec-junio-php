@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, {FC} from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import User from '../shapes/User'
 
@@ -9,7 +9,6 @@ interface IProps {
 
 const ScheduleHourTable: FC<IProps> = ({ intervalData, onRmGroupPress }) => {
   const { interval } = intervalData
-
 
   const rows = interval
     ? interval.groups.map(group => (

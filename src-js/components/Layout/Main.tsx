@@ -1,14 +1,13 @@
-import React, { FC, ReactNode, useEffect, useRef, useState } from 'react'
+import React, {FC, ReactNode, useEffect, useRef, useState} from 'react'
 import LoginForm from '../Forms/LoginForm'
 import Dashboard from '../Dashboard'
-import { useApi2, useApi2With } from '../../hooks/useApi'
+import {useApi2, useApi2With} from '../../hooks/useApi'
 import User from '../shapes/User'
 import ApiMessage from '../shapes/ApiMessage'
 import Message from '../shapes/Message'
 
 type LoginDetails = { username: string, password: string }
 type LoginResponse = { user: User } | Record<'msg' | 'error', string>
-
 type SessionResponse = { user: User } | Record<'not-logged' | 'error' | 'forbidden' | 'time', string>
 
 const Container: FC<{ children: ReactNode }> = ({ children }) => (

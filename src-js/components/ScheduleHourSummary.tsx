@@ -1,14 +1,17 @@
-import React, { FC } from 'react'
+import React, {FC} from 'react'
 import HourAdditionForm from './Forms/HourAdditionForm'
 import ScheduleHourTable from './Tables/ScheduleHourTable'
 import ScheduleInterval from './shapes/ScheduleInterval'
 import User from './shapes/User'
+import Message from "./shapes/Message";
+import classNames from "classnames";
 
 interface IProps {
-  message?: { msg: string, className: string }
+  msg?: Message<'info' | 'warning' | 'error'>
   intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
   onRmGroupPress: (id: number) => void
-  onAddPressed: (details: {day: number, hour: number, userId: number, groupId: number, classroomId: number}) => void
+  onAddPressed:
+    (details: { day: number, hour: number, 'id-user': number, 'id-group': number, 'id-classroom': number }) => void
 }
 
 const fHourIntervals: { [k: number]: string } = {
@@ -38,13 +41,25 @@ const fDays: { [k: number]: string } = {
   5: 'Viernes',
 }
 
-const ScheduleHourSummary: FC<IProps> = ({ intervalData, onRmGroupPress, onAddPressed, message }) => {
+const ScheduleHourSummary: FC<IProps> = ({ intervalData, onRmGroupPress, onAddPressed, msg }) => {
   return (
     <section className='mt-4'>
-      <h3>Editando la { fHours[intervalData.hour] } ({ fHourIntervals[intervalData.hour] }) del { fDays[intervalData.day] }</h3>
-      <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress } />
-      <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed } />
-      { message && <div className={ 'mt-3 alert ' + message.className } role='alert'>{ message.msg }</div> }
+      <h3>Editando la { fHours[intervalData.hour] } ({ fHourIntervals[intervalData.hour] })
+        del { fDays[intervalData.day] }</h3>
+      <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress }/>
+      <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed }/>
+      { msg &&
+        <div
+          className={ classNames(
+            'mt-3', 'd-inline-block', 'alert',
+             { 'alert-primary': msg.type === 'info' },
+             { 'alert-danger': msg.type === 'error' },
+             { 'alert-warning': msg.type === 'warning' },
+           ) }
+           role='alert'
+           children={ msg.content }
+        />
+      }
     </section>
   )
 }

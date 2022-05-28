@@ -7,7 +7,8 @@ import User from '../shapes/User'
 
 interface IProps {
   intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
-  onAddPressed: (details: { day: number, hour: number, userId: number, groupId: number, classroomId: number }) => void
+  onAddPressed:
+    (details: { day: number, hour: number, 'id-user': number, 'id-group': number, 'id-classroom': number }) => void
 }
 
 // todo: message xddd
@@ -136,9 +137,9 @@ const HourAdditionForm: FC<IProps> = ({ intervalData, onAddPressed }) => {
   const onSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
     onAddPressed({
-      day, hour, userId: user.id_usuario,
-      groupId: parseInt(groupsSelectRef.current?.value as string),
-      classroomId: parseInt(classroomSelectRef.current?.value as string),
+      day, hour, 'id-user': user.id_usuario,
+      'id-group': parseInt(groupsSelectRef.current?.value as string),
+      'id-classroom': parseInt(classroomSelectRef.current?.value as string),
     })
   }
 
