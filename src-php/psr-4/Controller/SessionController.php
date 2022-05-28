@@ -20,18 +20,17 @@ class SessionController
 
   public function login(Request $request, MyResponse $response): ResponseInterface
   {
-    $data = [];
     $body = $request->getParsedBody();
     $body['username'] = trim($body['username']);
 
     $validation = new Validation();
     $val = $validation->validate([
       [
-        'value' => $body['username'], 'name' => 'El nombre de usuario', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 20],
+        'value' => $body['username'] ?? null, 'name' => 'El nombre de usuario', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 20],
         'messages' => ['msg-required' => 'es un campo requerido', 'msg-max-len' => 'no se encuentra registrado']
       ],
       [
-        'value' => $body['password'], 'name' => 'La contraseña', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 50],
+        'value' => $body['password'] ?? null, 'name' => 'La contraseña', 'type' => 'string', 'constraints' => ['required' => 1, 'max-len' => 50],
         'messages' => ['msg-required' => 'es un campo requerido']
       ]
     ]);
@@ -41,7 +40,7 @@ class SessionController
     if (!is_array($val)) {
       $pdo = Connection::getInstance();
       $query = $pdo->prepare("SELECT * FROM usuarios WHERE usuario = :username");
-      $query->bindParam(':username', $body['username'], PDO::PARAM_STR);
+      $query->bindParam(':username', $body['username']);
       $query->execute();
 
       $result = $query->fetch();

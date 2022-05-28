@@ -21,6 +21,15 @@ const fHourIntervals: { [k: number]: string } = {
   7: '13:45 - 14:45',
 }
 
+const fHours: { [k: number]: string } = {
+  1: '1º hora',
+  2: '2º hora',
+  3: '3º hora',
+  5: '4º hora',
+  6: '5º hora',
+  7: '6º hora',
+}
+
 const fDays: { [k: number]: string } = {
   1: 'Lunes',
   2: 'Martes',
@@ -32,10 +41,10 @@ const fDays: { [k: number]: string } = {
 const ScheduleHourSummary: FC<IProps> = ({ intervalData, onRmGroupPress, onAddPressed, message }) => {
   return (
     <section className='mt-4'>
-      <h3>Editando la { intervalData.hour }º hora ({ fHourIntervals[intervalData.hour] }) del { fDays[intervalData.day] }</h3>
+      <h3>Editando la { fHours[intervalData.hour] } ({ fHourIntervals[intervalData.hour] }) del { fDays[intervalData.day] }</h3>
       <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress } />
       <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed } />
-      { message && <div className={ 'alert ' + message.className } role='alert'>{ message.msg }</div> }
+      { message && <div className={ 'mt-3 alert ' + message.className } role='alert'>{ message.msg }</div> }
     </section>
   )
 }

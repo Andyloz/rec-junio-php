@@ -1,10 +1,10 @@
-import React, { FC, ReactNode, useEffect, useMemo } from 'react'
-import useApi from '../../hooks/useApi'
+import React, { FC, ReactNode, useEffect, useMemo, useState } from 'react'
 import Schedule from '../shapes/Schedule'
 import User from '../shapes/User'
 import UserType from '../shapes/UserType'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import ScheduleClassroom from '../shapes/ScheduleClassroom'
+import { buildParametrizedUrl, useApi2With } from '../../hooks/useApi'
 
 interface IProps {
   user: User
@@ -22,10 +22,16 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
 )
 
 const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
-  const { response, doRequest } = useApi<{ schedule: Schedule }>()
+  const { doRequest } = useApi2With.urlPlaceholders<{ userId: number }, { schedule: Schedule }>(
+    buildParametrizedUrl`api/obtain-schedule/${ 'userId' }`,
+  )
+  const [schedule, setSchedule] = useState<Schedule>()
 
   useEffect(() => {
-    doRequest(`api/obtain-schedule/${ user.id_usuario }`)
+    doRequest({ userId: user.id_usuario })
+      .then(res => {
+        setSchedule(res.schedule)
+      })
   }, [user])
 
   const builtRows = useMemo(() => {
@@ -59,7 +65,7 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
           continue
         }
 
-        const interval = response?.schedule[day][hour]
+        const interval = schedule?.[day][hour]
         const col = []
 
         if (interval && 'day' in interval) {
@@ -94,7 +100,7 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
     }
 
     return rows
-  }, [response])
+  }, [schedule])
 
   return (
     <div className='table-responsive'>

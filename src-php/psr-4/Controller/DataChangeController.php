@@ -18,7 +18,7 @@ class DataChangeController
     $validation = new Validation();
     $val = $validation->validate([
       [
-        'value' => $body['id-schedule'], 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'value' => $body['id-schedule'] ?? null, 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ]
     ]);
@@ -47,11 +47,11 @@ class DataChangeController
     $validation = new Validation();
     $val = $validation->validate([
       [
-        'value' => $body['id-schedule'], 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'value' => $body['id-schedule'] ?? null, 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ],
       [
-        'value' => $body['id-classroom'], 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'value' => $body['id-classroom'] ?? null, 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ]
     ]);
@@ -112,23 +112,23 @@ class DataChangeController
     $validation = new Validation();
     $val = $validation->validate([
       [
-        'value' => $body['id-user'], 'name' => 'El código de profesor', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'value' => $body['id-user'] ?? null, 'name' => 'El código de profesor', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no está registrado', 'msg-max-val' => 'no está registrado']
       ],
       [
-        'value' => $body['day'], 'name' => 'El código de día', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 5],
+        'value' => $body['day'] ?? null, 'name' => 'El código de día', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 5],
         'messages' => ['msg-min-val' => 'debe estar entre 1 y 5', 'msg-max-val' => 'debe estar entre 1 y 5']
       ],
       [
-        'value' => $body['hour'], 'name' => 'El código de hora', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 7],
+        'value' => $body['hour'] ?? null, 'name' => 'El código de hora', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 7],
         'messages' => ['msg-min-val' => 'debe estar entre 1 y 7', 'msg-max-val' => 'debe estar entre 1 y 7']
       ],
       [
-        'value' => $body['id-group'], 'name' => 'El código de grupo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'value' => $body['id-group'] ?? null, 'name' => 'El código de grupo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ],
       [
-        'value' => $body['id-classroom'], 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
+        'value' => $body['id-classroom'] ?? null, 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ]
     ]);
