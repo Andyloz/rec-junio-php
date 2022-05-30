@@ -3,7 +3,6 @@ import LoginForm, { LoginFormProps } from '../Forms/LoginForm'
 import Dashboard from '../Dashboard'
 import { useApi, useApiWith } from '../../hooks/useApi'
 import User from '../shapes/User'
-import ApiMessage from '../shapes/ApiMessage'
 
 export type LoginDetails = { username: string, password: string }
 export type LoginResponse = { user: User } | Record<'msg' | 'error', string>
@@ -16,7 +15,7 @@ const Container: FC<{ children: ReactNode }> = ({ children }) => (
 const Main = () => {
   const { doRequest: doSessionRequest } = useApi<SessionResponse>('api/session-status')
   const { doRequest: doLoginRequest } = useApiWith.bodyParams<LoginDetails, LoginResponse>('api/login')
-  const { doRequest: doLogoutRequest } = useApi<ApiMessage>('api/logout', { method: 'POST' })
+  const { doRequest: doLogoutRequest } = useApi<{ msg: string }>('api/logout', { method: 'POST' })
 
   const [user, setUser] = useState<User>()
   const [loginMessage, setLoginMessage] = useState<LoginFormProps['msg']>()
