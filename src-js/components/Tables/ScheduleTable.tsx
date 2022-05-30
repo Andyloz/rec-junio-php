@@ -3,7 +3,7 @@ import Schedule from '../shapes/Schedule'
 import User from '../shapes/User'
 import UserType from '../shapes/UserType'
 import ScheduleClassroom from '../shapes/ScheduleClassroom'
-import { buildParametrizedUrl, useApi2With } from '../../hooks/useApi'
+import { buildParametrizedUrl, useApiWith } from '../../hooks/useApi'
 import { IntervalData } from '../Dashboard'
 
 export interface ScheduleTableProps {
@@ -23,7 +23,7 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
 const ScheduleTable: FC<ScheduleTableProps> = ({ user, type, onEditPress }) => {
   const [builtRows, setBuiltRows] = useState<JSX.Element[]>()
 
-  const { doRequest } = useApi2With.urlPlaceholders<{ userId: number }, { schedule: Schedule }>(
+  const { doRequest } = useApiWith.urlPlaceholders<{ userId: number }, { schedule: Schedule }>(
     buildParametrizedUrl`api/obtain-schedule/${ 'userId' }`,
   )
 

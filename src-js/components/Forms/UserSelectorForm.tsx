@@ -1,6 +1,6 @@
 import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
 import User from '../shapes/User'
-import { useApi2 } from '../../hooks/useApi'
+import { useApi } from '../../hooks/useApi'
 
 interface IProps {
   onSelectedUser: (teacher: User) => void
@@ -12,7 +12,7 @@ const UserSelectorForm: FC<IProps> = ({ onSelectedUser }) => {
   const [teachers, setTeachers] = useState<Teachers>()
 
   // todo: handle message arrive
-  const { doRequest: doTeachersRequest } = useApi2<{ teachers: User[] }>('api/obtain-teachers')
+  const { doRequest: doTeachersRequest } = useApi<{ teachers: User[] }>('api/obtain-teachers')
 
   useEffect(() => {
     doTeachersRequest().then((res) => {

@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useEffect, useRef, useState } from 'react'
 import LoginForm, { LoginFormProps } from '../Forms/LoginForm'
 import Dashboard from '../Dashboard'
-import { useApi2, useApi2With } from '../../hooks/useApi'
+import { useApi, useApiWith } from '../../hooks/useApi'
 import User from '../shapes/User'
 import ApiMessage from '../shapes/ApiMessage'
 
@@ -14,9 +14,9 @@ const Container: FC<{ children: ReactNode }> = ({ children }) => (
 )
 
 const Main = () => {
-  const { doRequest: doSessionRequest } = useApi2<SessionResponse>('api/session-status')
-  const { doRequest: doLoginRequest } = useApi2With.bodyParams<LoginDetails, LoginResponse>('api/login')
-  const { doRequest: doLogoutRequest } = useApi2<ApiMessage>('api/logout', { method: 'POST' })
+  const { doRequest: doSessionRequest } = useApi<SessionResponse>('api/session-status')
+  const { doRequest: doLoginRequest } = useApiWith.bodyParams<LoginDetails, LoginResponse>('api/login')
+  const { doRequest: doLogoutRequest } = useApi<ApiMessage>('api/logout', { method: 'POST' })
 
   const [user, setUser] = useState<User>()
   const [loginMessage, setLoginMessage] = useState<LoginFormProps['msg']>()

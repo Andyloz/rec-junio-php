@@ -6,7 +6,7 @@ import UserSelectorForm from './Forms/UserSelectorForm'
 import WelcomeLayer from './WelcomeLayer'
 import ScheduleInterval from './shapes/ScheduleInterval'
 import ScheduleHourSummary from './ScheduleHourSummary'
-import { useApi2With } from '../hooks/useApi'
+import { useApiWith } from '../hooks/useApi'
 import Message from './shapes/Message'
 import { HourAdditionFormProps } from './Forms/HourAdditionForm'
 
@@ -32,10 +32,10 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   const [hourFormMessage, setHourFormMessage] = useState<HourFormMessage>()
 
-  const { doRequest: removeGroup } = useApi2With.bodyParams<RmGroupDetails, GroupResponse>(
+  const { doRequest: removeGroup } = useApiWith.bodyParams<RmGroupDetails, GroupResponse>(
     'api/remove-group-in-hour', { method: 'DELETE' },
   )
-  const { doRequest: addGroup } = useApi2With.bodyParams<AddGroupDetails, GroupResponse>(
+  const { doRequest: addGroup } = useApiWith.bodyParams<AddGroupDetails, GroupResponse>(
     'api/insert-group-in-hour',
   )
 
