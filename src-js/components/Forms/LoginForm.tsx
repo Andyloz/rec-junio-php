@@ -3,10 +3,11 @@ import useMediaQuery from '../../hooks/useMediaQuery'
 import FormField from './FormField'
 import Message from '../shapes/Message'
 import classNames from 'classnames'
+import { LoginDetails } from '../Layout/Main'
 
-interface IProps {
+export interface LoginFormProps {
   msg?: Message<'info' | 'warning' | 'error'>
-  onPressedLogin: (details: { username: string, password: string }) => void
+  onPressedLogin: (details: LoginDetails) => void
   onInputsChange: () => void
 }
 
@@ -18,7 +19,7 @@ const Container: FC<{ children: ReactNode }> = ({ children }) => (
   </div>
 )
 
-const LoginForm: FC<IProps> = ({ msg, onPressedLogin, onInputsChange }) => {
+const LoginForm: FC<LoginFormProps> = ({ msg, onPressedLogin, onInputsChange }) => {
 
   const messageContainer = !msg ? undefined : (
     <div className='mt-2 mt-md-3 mx-4'>

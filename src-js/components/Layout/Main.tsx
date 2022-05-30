@@ -1,14 +1,13 @@
-import React, {FC, ReactNode, useEffect, useRef, useState} from 'react'
-import LoginForm from '../Forms/LoginForm'
+import React, { FC, ReactNode, useEffect, useRef, useState } from 'react'
+import LoginForm, { LoginFormProps } from '../Forms/LoginForm'
 import Dashboard from '../Dashboard'
-import {useApi2, useApi2With} from '../../hooks/useApi'
+import { useApi2, useApi2With } from '../../hooks/useApi'
 import User from '../shapes/User'
 import ApiMessage from '../shapes/ApiMessage'
-import Message from '../shapes/Message'
 
-type LoginDetails = { username: string, password: string }
-type LoginResponse = { user: User } | Record<'msg' | 'error', string>
-type SessionResponse = { user: User } | Record<'not-logged' | 'error' | 'forbidden' | 'time', string>
+export type LoginDetails = { username: string, password: string }
+export type LoginResponse = { user: User } | Record<'msg' | 'error', string>
+export type SessionResponse = { user: User } | Record<'not-logged' | 'error' | 'forbidden' | 'time', string>
 
 const Container: FC<{ children: ReactNode }> = ({ children }) => (
   <main className='flex-grow-1'>{ children }</main>
@@ -20,7 +19,7 @@ const Main = () => {
   const { doRequest: doLogoutRequest } = useApi2<ApiMessage>('api/logout', { method: 'POST' })
 
   const [user, setUser] = useState<User>()
-  const [loginMessage, setLoginMessage] = useState<Message<'info' | 'error' | 'warning'>>()
+  const [loginMessage, setLoginMessage] = useState<LoginFormProps['msg']>()
 
   const sessionInterval = useRef<number | undefined>(undefined)
 
@@ -47,7 +46,7 @@ const Main = () => {
     return clearSessionInterval
   }, [])
 
-  const handleLoginPress = (details: LoginDetails) => {
+  const handleLoginPress: LoginFormProps['onPressedLogin'] = (details) => {
     doLoginRequest(details).then(loginRes => {
       if ('msg' in loginRes) {
         setLoginMessage({ content: loginRes['msg'], type: 'warning' })
