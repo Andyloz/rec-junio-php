@@ -1,17 +1,14 @@
-import React, {FC} from 'react'
-import HourAdditionForm from './Forms/HourAdditionForm'
-import ScheduleHourTable from './Tables/ScheduleHourTable'
-import ScheduleInterval from './shapes/ScheduleInterval'
-import User from './shapes/User'
-import Message from "./shapes/Message";
-import classNames from "classnames";
+import React, { FC } from 'react'
+import HourAdditionForm, { HourAdditionFormProps } from './Forms/HourAdditionForm'
+import ScheduleHourTable, { ScheduleHourTableProps } from './Tables/ScheduleHourTable'
+import classNames from 'classnames'
+import { HourFormMessage, IntervalData } from './Dashboard'
 
 interface IProps {
-  msg?: Message<'info' | 'warning' | 'error'>
-  intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
-  onRmGroupPress: (id: number) => void
-  onAddPressed:
-    (details: { day: number, hour: number, 'id-user': number, 'id-group': number, 'id-classroom': number }) => void
+  msg?: HourFormMessage
+  intervalData: IntervalData
+  onRmGroupPress: ScheduleHourTableProps['onRmGroupPress']
+  onAddPressed: HourAdditionFormProps['onAddPressed']
 }
 
 const fHourIntervals: { [k: number]: string } = {
@@ -42,22 +39,24 @@ const fDays: { [k: number]: string } = {
 }
 
 const ScheduleHourSummary: FC<IProps> = ({ intervalData, onRmGroupPress, onAddPressed, msg }) => {
+  const titleContent =
+    `Editando la ${ fHours[intervalData.hour] } (${ fHourIntervals[intervalData.hour] }) del ${ fDays[intervalData.day] }`
+
   return (
     <section className='mt-4'>
-      <h3>Editando la { fHours[intervalData.hour] } ({ fHourIntervals[intervalData.hour] })
-        del { fDays[intervalData.day] }</h3>
-      <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress }/>
-      <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed }/>
+      <h3>{ titleContent }</h3>
+      <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress } />
+      <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed } />
       { msg &&
         <div
+          role='alert'
           className={ classNames(
             'mt-3', 'd-inline-block', 'alert',
-             { 'alert-primary': msg.type === 'info' },
-             { 'alert-danger': msg.type === 'error' },
-             { 'alert-warning': msg.type === 'warning' },
-           ) }
-           role='alert'
-           children={ msg.content }
+            { 'alert-primary': msg.type === 'info' },
+            { 'alert-danger': msg.type === 'error' },
+            { 'alert-warning': msg.type === 'warning' },
+          ) }
+          children={ msg.content }
         />
       }
     </section>

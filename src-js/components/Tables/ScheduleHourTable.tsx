@@ -2,12 +2,12 @@ import React, {FC} from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import User from '../shapes/User'
 
-interface IProps {
+export interface ScheduleHourTableProps {
   intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
   onRmGroupPress: (id: number) => void
 }
 
-const ScheduleHourTable: FC<IProps> = ({ intervalData, onRmGroupPress }) => {
+const ScheduleHourTable: FC<ScheduleHourTableProps> = ({ intervalData, onRmGroupPress }) => {
   const { interval } = intervalData
 
   const rows = interval

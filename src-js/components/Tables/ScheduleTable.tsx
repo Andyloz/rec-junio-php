@@ -1,15 +1,15 @@
-import React, {FC, ReactNode, useEffect, useState} from 'react'
+import React, { FC, ReactNode, useEffect, useState } from 'react'
 import Schedule from '../shapes/Schedule'
 import User from '../shapes/User'
 import UserType from '../shapes/UserType'
-import ScheduleInterval from '../shapes/ScheduleInterval'
 import ScheduleClassroom from '../shapes/ScheduleClassroom'
-import {buildParametrizedUrl, useApi2With} from '../../hooks/useApi'
+import { buildParametrizedUrl, useApi2With } from '../../hooks/useApi'
+import { IntervalData } from '../Dashboard'
 
-interface IProps {
+export interface ScheduleTableProps {
   user: User
   type: UserType
-  onEditPress: (day: number, hour: number, user: User, interval?: ScheduleInterval) => void
+  onEditPress: (iData: IntervalData) => void
 }
 
 const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
@@ -20,7 +20,7 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
   </td>
 )
 
-const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
+const ScheduleTable: FC<ScheduleTableProps> = ({ user, type, onEditPress }) => {
   const [builtRows, setBuiltRows] = useState<JSX.Element[]>()
 
   const { doRequest } = useApi2With.urlPlaceholders<{ userId: number }, { schedule: Schedule }>(
@@ -28,7 +28,7 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
   )
 
   useEffect(() => {
-    doRequest({ userId: user.id_usuario})
+    doRequest({ userId: user.id_usuario })
       .then(res => {
         const rowHeaders = [
           <></>,
@@ -78,15 +78,15 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
               <Cell key={ `d${ day }-h${ hour }` }>
                 { col }
                 { type === UserType.Admin &&
-                    <a
-                        role='button'
-                        className='link-primary'
-                        onClick={ () => onEditPress(
-                          day, hour, user,
-                          interval && 'day' in interval ? interval : undefined,
-                        ) }
-                        children='Editar'
-                    />
+                  <a
+                    role='button'
+                    className='link-primary'
+                    onClick={ () => onEditPress({
+                      day, hour, user,
+                      interval: 'day' in interval ? interval : undefined,
+                    }) }
+                    children='Editar'
+                  />
                 }
               </Cell>,
             )
@@ -102,17 +102,17 @@ const ScheduleTable: FC<IProps> = ({ user, type, onEditPress }) => {
     <div className='table-responsive'>
       <table className='table table-bordered mt-4'>
         <thead className='table-primary'>
-        <tr className='text-center'>
-          <th scope='col'></th>
-          <th scope='col'>Lunes</th>
-          <th scope='col'>Martes</th>
-          <th scope='col'>Miércoles</th>
-          <th scope='col'>Jueves</th>
-          <th scope='col'>Viernes</th>
-        </tr>
+          <tr className='text-center'>
+            <th scope='col'></th>
+            <th scope='col'>Lunes</th>
+            <th scope='col'>Martes</th>
+            <th scope='col'>Miércoles</th>
+            <th scope='col'>Jueves</th>
+            <th scope='col'>Viernes</th>
+          </tr>
         </thead>
         <tbody>
-        { builtRows }
+          { builtRows }
         </tbody>
       </table>
     </div>

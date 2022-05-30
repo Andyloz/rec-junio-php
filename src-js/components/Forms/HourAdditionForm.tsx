@@ -1,14 +1,12 @@
 import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
-import ScheduleInterval from '../shapes/ScheduleInterval'
 import { buildParametrizedUrl, useApi2, useApi2With } from '../../hooks/useApi'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
-import User from '../shapes/User'
+import { AddGroupDetails, IntervalData } from '../Dashboard'
 
-interface IProps {
-  intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
-  onAddPressed:
-    (details: { day: number, hour: number, 'id-user': number, 'id-group': number, 'id-classroom': number }) => void
+export interface HourAdditionFormProps {
+  intervalData: IntervalData
+  onAddPressed: (details: AddGroupDetails) => void
 }
 
 // todo: message xddd
@@ -19,7 +17,7 @@ type FreeClassroomsResponse = { 'free-classrooms': Classroom[] }
 type NormalGroupsResponse = { 'groups-with-classroom': Group[] }
 type OnGuardGroupsResponse = { 'groups-without-classroom': Group[] }
 
-const HourAdditionForm: FC<IProps> = ({ intervalData, onAddPressed }) => {
+const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPressed }) => {
   const { day, hour, user, interval } = intervalData
 
   const [occpClassrooms, setOccpClassrooms] = useState<Classroom[]>()
