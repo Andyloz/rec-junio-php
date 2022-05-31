@@ -8,7 +8,7 @@ export interface GetSchedule {
   Response: { schedule: Schedule }
 }
 
-export const useSchedule = () => {
+const useSchedule = () => {
   const [schedule, setSchedule] = useState<Schedule>()
   const [user, setUser] = useState<User>()
 
