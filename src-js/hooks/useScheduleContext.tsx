@@ -1,6 +1,7 @@
 import React, { createContext, FC, ReactNode, useState } from 'react'
 import Schedule from '../components/shapes/Schedule'
 import { buildParametrizedUrl, useFetchWith } from './useFetch'
+import User from '../components/shapes/User'
 
 export interface GetSchedule {
   Request: { userId: number }
@@ -16,21 +17,21 @@ export const ScheduleProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
 export const useSchedule = () => {
   const [schedule, setSchedule] = useState<Schedule>()
-  const [params, setParams] = useState<GetSchedule['Request']>()
+  const [user, setUser] = useState<User>()
 
   const { doRequest } = useFetchWith.urlPlaceholders<GetSchedule['Request'], GetSchedule['Response']>(
     buildParametrizedUrl`api/obtain-schedule/${ 'userId' }`,
   )
 
   const refreshData = () => {
-    if (!params) {
+    if (!user) {
       console.log('No params to refresh data')
     } else {
-      doRequest(params).then(({ schedule }) => setSchedule(schedule))
+      doRequest({ userId: user.id_usuario }).then(({ schedule }) => setSchedule(schedule))
     }
   }
 
-  return { schedule, params, setParams, refreshData }
+  return { schedule, user, setUser, refreshData }
 }
 
 export const useScheduleContext = () => {
