@@ -1,23 +1,14 @@
-import React, { FC, FormEventHandler, ReactNode, useRef } from 'react'
+import React, { FC, FormEventHandler, useRef } from 'react'
 import useMediaQuery from '../../hooks/useMediaQuery'
 import FormField from './FormField'
-import Message from '../shapes/Message'
 import classNames from 'classnames'
-import { LoginDetails } from '../Layout/Main'
+import { Login, SessionMessage } from '../../hooks/useSession'
 
 export interface LoginFormProps {
-  msg?: Message<'info' | 'warning' | 'error'>
-  onPressedLogin: (details: LoginDetails) => void
+  msg?: SessionMessage
+  onPressedLogin: (details: Login['Request']) => void
   onInputsChange: () => void
 }
-
-const Container: FC<{ children: ReactNode }> = ({ children }) => (
-  <div className='container h-100 d-flex'>
-    <div className='m-auto d-flex flex-column flex-md-row align-items-center gap-3 gap-md-5'>
-      { children }
-    </div>
-  </div>
-)
 
 const LoginForm: FC<LoginFormProps> = ({ msg, onPressedLogin, onInputsChange }) => {
 
@@ -78,12 +69,12 @@ const LoginForm: FC<LoginFormProps> = ({ msg, onPressedLogin, onInputsChange }) 
   )
 
   return (
-    <Container>
-      <>
+    <div className='container h-100 d-flex'>
+      <div className='m-auto d-flex flex-column flex-md-row align-items-center gap-3 gap-md-5'>
         { title }
         { form }
-      </>
-    </Container>
+      </div>
+    </div>
   )
 }
 
