@@ -18,13 +18,15 @@ export interface Logout {
   Response: { msg: string }
 }
 
+export type SessionMessage = Message<'info' | 'warning' | 'error'>
+
 function useSession() {
   const { doRequest: doLoginRequest } = useApiWith.bodyParams<Login['Request'], Login['Response']>('api/login')
   const { doRequest: doSessionRequest } = useApi<Session['Response']>('api/session-status')
   const { doRequest: doLogoutRequest } = useApi<Logout>('api/logout', { method: 'POST' })
 
   const [user, setUser] = useState<User>()
-  const [msg, setMsg] = useState<Message<'info' | 'warning' | 'error'>>()
+  const [msg, setMsg] = useState<SessionMessage>()
   const sessionInterval = useRef<number>()
 
   const sessionClear =
