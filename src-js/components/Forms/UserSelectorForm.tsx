@@ -1,4 +1,4 @@
-import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
+import React, { FC, FormEventHandler, useEffect, useState } from 'react'
 import User from '../shapes/User'
 import { useFetch } from '../../hooks/useFetch'
 
@@ -28,10 +28,8 @@ const UserSelectorForm: FC<IProps> = ({ onSelectedUser }) => {
     })
   }, [])
 
-  const teacherRef = useRef<HTMLSelectElement>(null)
-
   const teachersSelect = !teachers ? undefined : (
-    <select ref={ teacherRef } id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
+    <select id='teacher-selector' name='teacher-selector' className='form-select mb-3 me-4 mb-sm-0'
             style={ { maxWidth: 'max-content' } }>
       {
         teachers && Object.entries(teachers).map(([id, teacher]) => (
@@ -42,12 +40,11 @@ const UserSelectorForm: FC<IProps> = ({ onSelectedUser }) => {
   )
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
-    console.log('select', e.currentTarget.querySelector('select')?.value)
     e.preventDefault()
     if (!teachers) {
       return
     }
-    const userId = Number(teacherRef.current?.value)
+    const userId = Number(e.currentTarget.querySelector('select')?.value)
     if (!isNaN(userId)) {
       onSelectedUser(teachers[userId])
     }
