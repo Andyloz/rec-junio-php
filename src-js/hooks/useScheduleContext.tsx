@@ -30,7 +30,7 @@ export const useSchedule = () => {
     }
   }
 
-  return { schedule, setParams, refreshData }
+  return { schedule, params, setParams, refreshData }
 }
 
 export const useScheduleContext = () => {
