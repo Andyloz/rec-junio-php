@@ -7,9 +7,14 @@ export interface GetSchedule {
   Response: { schedule: Schedule }
 }
 
-export const ScheduleContext = createContext<ReturnType<typeof useSchedule> | undefined>(undefined)
+const ScheduleContext = createContext<ReturnType<typeof useSchedule> | undefined>(undefined)
 
-const useSchedule = () => {
+export const ScheduleProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const context = useSchedule()
+  return <ScheduleContext.Provider value={ context } children={ children } />
+}
+
+export const useSchedule = () => {
   const [schedule, setSchedule] = useState<Schedule>()
   const [params, setParams] = useState<GetSchedule['Request']>()
 
@@ -28,9 +33,10 @@ const useSchedule = () => {
   return { schedule, setParams, refreshData }
 }
 
-export const ScheduleProvider: FC<{ children: ReactNode }> = ({ children }) => {
+export const useScheduleContext = () => {
   const context = useSchedule()
-  return <ScheduleContext.Provider value={ context } children={ children } />
+  if (!context) {
+    throw new Error('Schedule context not initialized')
+  }
+  return context
 }
-
-
