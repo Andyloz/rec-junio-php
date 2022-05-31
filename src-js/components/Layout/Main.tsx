@@ -4,7 +4,7 @@ import Dashboard from '../Dashboard'
 import useSession from '../../hooks/useSession'
 
 const Container: FC<{ children: ReactNode }> = ({ children }) => (
-  <main className='flex-grow-1'>{ children }</main>
+    <main className='flex-grow-1'>{ children }</main>
 )
 
 const Main = () => {

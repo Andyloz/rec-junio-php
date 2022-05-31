@@ -1,15 +1,17 @@
-import React, { FC, ReactNode, useEffect, useState } from 'react'
-import Schedule from '../shapes/Schedule'
+import React, { FC, ReactNode, useEffect } from 'react'
 import User from '../shapes/User'
 import UserType from '../shapes/UserType'
-import ScheduleClassroom from '../shapes/ScheduleClassroom'
-import { buildParametrizedUrl, useFetchWith } from '../../hooks/useFetch'
+import Schedule from '../shapes/Schedule'
 import { IntervalData } from '../Dashboard'
 
+export type OnEditPress = (data: IntervalData) => void
+
 export interface ScheduleTableProps {
-  user: User
   type: UserType
-  onEditPress: (iData: IntervalData) => void
+  schedule?: Schedule
+  user: User
+  refreshData: () => void
+  onEditPress: OnEditPress
 }
 
 const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
@@ -20,83 +22,71 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
   </td>
 )
 
-const ScheduleTable: FC<ScheduleTableProps> = ({ user, type, onEditPress }) => {
-  const [builtRows, setBuiltRows] = useState<JSX.Element[]>()
+const ScheduleTable: FC<ScheduleTableProps> = ({ schedule, user, refreshData, type, onEditPress }) => {
+  useEffect(refreshData, [user])
 
-  const { doRequest } = useFetchWith.urlPlaceholders<{ userId: number }, { schedule: Schedule }>(
-    buildParametrizedUrl`api/obtain-schedule/${ 'userId' }`,
-  )
+  const rowHeaders = [
+    <></>,
+    <th key={ `th${ 1 }` } className='text-center align-middle' scope='row'>8:15 - 9:15</th>,
+    <th key={ `th${ 2 }` } className='text-center align-middle' scope='row'>9:15 - 10:15</th>,
+    <th key={ `th${ 3 }` } className='text-center align-middle' scope='row'>10:15 - 11:15</th>,
+    <tr key={ `th${ 4 }` }>
+      <th className='text-center align-middle' scope='row'>11:15 - 11:45</th>
+      <td colSpan={ 5 } className='text-center align-middle'>RECREO</td>
+    </tr>,
+    <th key={ `th${ 5 }` } className='text-center align-middle' scope='row'>11:45 - 12:45</th>,
+    <th key={ `th${ 6 }` } className='text-center align-middle' scope='row'>12:45 - 13:45</th>,
+    <th key={ `th${ 7 }` } className='text-center align-middle' scope='row'>13:45 - 14:45</th>,
+  ]
 
-  useEffect(() => {
-    doRequest({ userId: user.id_usuario })
-      .then(res => {
-        const rowHeaders = [
-          <></>,
-          <th key={ `th${ 1 }` } className='text-center align-middle' scope='row'>8:15 - 9:15</th>,
-          <th key={ `th${ 2 }` } className='text-center align-middle' scope='row'>9:15 - 10:15</th>,
-          <th key={ `th${ 3 }` } className='text-center align-middle' scope='row'>10:15 - 11:15</th>,
-          <tr key={ `th${ 4 }` }>
-            <th className='text-center align-middle' scope='row'>11:15 - 11:45</th>
-            <td colSpan={ 5 } className='text-center align-middle'>RECREO</td>
-          </tr>,
-          <th key={ `th${ 5 }` } className='text-center align-middle' scope='row'>11:45 - 12:45</th>,
-          <th key={ `th${ 6 }` } className='text-center align-middle' scope='row'>12:45 - 13:45</th>,
-          <th key={ `th${ 7 }` } className='text-center align-middle' scope='row'>13:45 - 14:45</th>,
-        ]
+  const builtRows: ReactNode[] = []
 
-        const rows = []
-        for (let hour = 1; hour <= 7; hour++) {
-          if (hour === 4) {
-            rows.push(rowHeaders[hour])
-            continue
-          }
+  for (let hour = 1; hour <= 7; hour++) {
+    if (hour === 4) {
+      builtRows.push(rowHeaders[hour])
+      continue
+    }
 
-          const row = []
-          for (let day = 0; day <= 5; day++) {
+    const row = []
+    for (let day = 0; day <= 5; day++) {
 
-            if (day === 0) {
-              row.push(rowHeaders[hour])
-              continue
-            }
+      if (day === 0) {
+        row.push(rowHeaders[hour])
+        continue
+      }
 
-            const interval = res.schedule?.[day][hour]
-            const col = []
+      const interval = schedule?.[day][hour]
+      const col = []
 
-            if (interval && 'day' in interval) {
-              const groups = interval.groups
-                .map(g => g.name)
-                .join(' / ')
-              const classroom = interval.classroom as ScheduleClassroom
+      if (interval && 'day' in interval) {
+        const groups = interval.groups
+          .map(g => g.name)
+          .join(' / ')
 
-              col.push(
-                <span key='groups' style={ { maxWidth: '200px' } }>{ groups }</span>,
-                <span key='classrooms' style={ { maxWidth: '200px' } }>({ classroom.name })</span>,
-              )
-            }
+        col.push(
+          <span key='groups' style={ { maxWidth: '200px' } }>{ groups }</span>,
+          <span key='classrooms' style={ { maxWidth: '200px' } }>({ interval.classroom.name })</span>,
+        )
+      }
 
-            row.push(
-              <Cell key={ `d${ day }-h${ hour }` }>
-                { col }
-                { type === UserType.Admin &&
-                  <a
-                    role='button'
-                    className='link-primary'
-                    onClick={ () => onEditPress({
-                      day, hour, user,
-                      interval: 'day' in interval ? interval : undefined,
-                    }) }
-                    children='Editar'
-                  />
-                }
-              </Cell>,
-            )
-          }
-          rows.push(<tr key={ `h${ hour }` }>{ row }</tr>)
-        }
+      if (type === UserType.Admin) col.push(
+        <a
+          key='edit'
+          role='button'
+          className='link-primary'
+          onClick={ () => onEditPress({
+            day, hour, user,
+            interval: interval && 'day' in interval ? interval : undefined,
+          }) }
+          children='Editar'
+        />,
+      )
 
-        setBuiltRows(rows)
-      })
-  }, [user])
+      row.push(<Cell key={ `d${ day }-h${ hour }` }>{ col }</Cell>)
+    }
+
+    builtRows.push(<tr key={ `h${ hour }` }>{ row }</tr>)
+  }
 
   return (
     <div className='table-responsive'>

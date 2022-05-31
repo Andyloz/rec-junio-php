@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react'
 import UserType from './shapes/UserType'
 import User from './shapes/User'
-import UserSchedule, { UserScheduleProps } from './UserSchedule'
+import UserSchedule from './UserSchedule'
 import UserSelectorForm from './Forms/UserSelectorForm'
 import WelcomeLayer from './WelcomeLayer'
 import ScheduleInterval from './shapes/ScheduleInterval'
@@ -9,6 +9,8 @@ import ScheduleHourSummary from './ScheduleHourSummary'
 import { useFetchWith } from '../hooks/useFetch'
 import Message from './shapes/Message'
 import { HourAdditionFormProps } from './Forms/HourAdditionForm'
+import useSchedule from '../hooks/useSchedule'
+import { OnEditPress } from './Tables/ScheduleTable'
 
 interface IProp {
   user: User
@@ -59,7 +61,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
       .then(res => setGroupActionMessage(res))
   }
 
-  const [selectedUser, setSelectedUser] = useState<User>()
+  const { schedule, user: selectedUser, setUser: setSelectedUser, refreshData } = useSchedule()
   const [selectedIntervalData, setSelectedIntervalData] = useState<IntervalData>()
 
   useEffect(() => setSelectedIntervalData(undefined), [selectedUser, selectedIntervalData])
@@ -73,7 +75,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
     />
   )
 
-  const handleEditPress: UserScheduleProps['onEditPress'] = (iData) => {
+  const handleEditPress: OnEditPress = (iData) => {
     setHourFormMessage(undefined)
     setSelectedIntervalData(iData)
   }
@@ -83,7 +85,12 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
       <UserSelectorForm onSelectedUser={ u => setSelectedUser(u) } />
       { selectedUser && (
         <>
-          <UserSchedule user={ selectedUser } type={ UserType.Admin } onEditPress={ handleEditPress } />
+          <UserSchedule
+            schedule={ schedule }
+            refreshData={ refreshData }
+            user={ selectedUser }
+            type={ UserType.Admin }
+            onEditPress={ handleEditPress } />
           { scheduleHourSummary }
         </>
       ) }
@@ -96,7 +103,8 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
       <WelcomeLayer user={ user } onPressedLogout={ logout } />
       {
         user.tipo === UserType.Normal
-          ? <UserSchedule user={ user } type={ UserType.Normal } onEditPress={ handleEditPress } />
+          ? <UserSchedule type={ UserType.Normal } schedule={ schedule } user={ user } refreshData={ refreshData }
+                          onEditPress={ handleEditPress } />
           : adminContent
       }
     </div>
