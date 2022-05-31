@@ -1,4 +1,4 @@
-import { useApi, useApiWith } from './useApi'
+import { useFetch, useFetchWith } from './useFetch'
 import User from '../components/shapes/User'
 import { useEffect, useRef, useState } from 'react'
 import Message from '../components/shapes/Message'
@@ -21,9 +21,9 @@ export interface Logout {
 export type SessionMessage = Message<'info' | 'warning' | 'error'>
 
 function useSession() {
-  const { doRequest: doLoginRequest } = useApiWith.bodyParams<Login['Request'], Login['Response']>('api/login')
-  const { doRequest: doSessionRequest } = useApi<Session['Response']>('api/session-status')
-  const { doRequest: doLogoutRequest } = useApi<Logout>('api/logout', { method: 'POST' })
+  const { doRequest: doLoginRequest } = useFetchWith.bodyParams<Login['Request'], Login['Response']>('api/login')
+  const { doRequest: doSessionRequest } = useFetch<Session['Response']>('api/session-status')
+  const { doRequest: doLogoutRequest } = useFetch<Logout>('api/logout', { method: 'POST' })
 
   const [user, setUser] = useState<User>()
   const [msg, setMsg] = useState<SessionMessage>()

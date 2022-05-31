@@ -25,7 +25,7 @@ function useApiBase<R>() {
   return { doRequest, pending }
 }
 
-export function useApi <R>(url: string, requestProps: RequestInit = {}) {
+export function useFetch <R>(url: string, requestProps: RequestInit = {}) {
   const { doRequest: hookDoRequest, pending } = useApiBase<R>()
   const doRequest = () => hookDoRequest(url, requestProps)
   return { doRequest, pending }
@@ -37,7 +37,7 @@ export function buildParametrizedUrl<P>(url: TemplateStringsArray, ...tParams: E
   return (params: P) => tParams.reduce((prev, curr, i) => prev + params[curr] + url[i + 1], url[0])
 }
 
-export const useApiWith = {
+export const useFetchWith = {
   bodyParams<P, R = void>(url: string, requestProps: RequestInit = {}) {
     const { doRequest: hookDoRequest, pending } = useApiBase<R>()
     const doRequest = (params: P) => hookDoRequest(url, {

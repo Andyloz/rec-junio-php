@@ -1,5 +1,5 @@
 import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
-import { buildParametrizedUrl, useApi, useApiWith } from '../../hooks/useApi'
+import { buildParametrizedUrl, useFetch, useFetchWith } from '../../hooks/useFetch'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
 import { AddGroupDetails, IntervalData } from '../Dashboard'
@@ -27,16 +27,16 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPresse
   const [onGuardGroups, setOnGuardGroups] = useState<Group[]>()
 
   const { doRequest: doOccpClassRequest } =
-    useApiWith.urlPlaceholders<{ day: number, hour: number }, OccpClassroomsResponse>(
+    useFetchWith.urlPlaceholders<{ day: number, hour: number }, OccpClassroomsResponse>(
       buildParametrizedUrl`api/obtain-occupied-classrooms/${ 'day' }/${ 'hour' }`,
     )
   const { doRequest: doFreeClassRequest } =
-    useApiWith.urlPlaceholders<{ day: number, hour: number }, FreeClassroomsResponse>(
+    useFetchWith.urlPlaceholders<{ day: number, hour: number }, FreeClassroomsResponse>(
       buildParametrizedUrl`api/obtain-free-classrooms/${ 'day' }/${ 'hour' }`,
     )
 
-  const { doRequest: doNormalGroupsRequest } = useApi<NormalGroupsResponse>('api/obtain-groups-with-classroom')
-  const { doRequest: doGuardGroupsRequest } = useApi<OnGuardGroupsResponse>('api/obtain-groups-without-classroom')
+  const { doRequest: doNormalGroupsRequest } = useFetch<NormalGroupsResponse>('api/obtain-groups-with-classroom')
+  const { doRequest: doGuardGroupsRequest } = useFetch<OnGuardGroupsResponse>('api/obtain-groups-without-classroom')
 
   useEffect(() => {
     Promise.all([
