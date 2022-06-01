@@ -1,14 +1,15 @@
 import React, { FC } from 'react'
-import HourAdditionForm, { HourAdditionFormProps } from './Forms/HourAdditionForm'
-import ScheduleHourTable, { ScheduleHourTableProps } from './Tables/ScheduleHourTable'
+import HourAdditionForm from './Forms/HourAdditionForm'
+import ScheduleHourTable from './Tables/ScheduleHourTable'
 import classNames from 'classnames'
-import { HourFormMessage, IntervalData } from './Dashboard'
+import { IntervalData } from './Dashboard'
+import useGroups, { GroupActionMsg } from '../hooks/useGroups'
 
 interface IProps {
-  msg?: HourFormMessage
+  msg?: GroupActionMsg
   intervalData: IntervalData
-  onRmGroupPress: ScheduleHourTableProps['onRmGroupPress']
-  onAddPressed: HourAdditionFormProps['onAddPressed']
+  onRmGroupPress: ReturnType<typeof useGroups>['rmGroup']
+  onAddPressed: ReturnType<typeof useGroups>['addGroup']
 }
 
 const fHourIntervals: { [k: number]: string } = {

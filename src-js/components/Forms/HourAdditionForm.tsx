@@ -2,14 +2,15 @@ import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
 import { buildParametrizedUrl, useFetch, useFetchWith } from '../../hooks/useFetch'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
-import { AddGroupDetails, IntervalData } from '../Dashboard'
+import { IntervalData } from '../Dashboard'
+import useGroups from '../../hooks/useGroups'
 
 export interface HourAdditionFormProps {
   intervalData: IntervalData
-  onAddPressed: (details: AddGroupDetails) => void
+  onAddPressed: ReturnType<typeof useGroups>['addGroup']
 }
 
-// todo: message xddd
+// todo: message
 
 type OccpClassroomsResponse = { 'occupied-classrooms': Classroom[] }
 type FreeClassroomsResponse = { 'free-classrooms': Classroom[] }
