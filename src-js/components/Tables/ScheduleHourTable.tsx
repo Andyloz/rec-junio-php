@@ -1,17 +1,14 @@
 import React, { FC } from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
-import User from '../shapes/User'
 import useGroups from '../../hooks/useGroups'
 
 export interface ScheduleHourTableProps {
-  intervalData: { day: number, hour: number, user: User, interval?: ScheduleInterval }
+  interval: ScheduleInterval | {}
   onRmGroupPress: ReturnType<typeof useGroups>['rmGroup']
 }
 
-const ScheduleHourTable: FC<ScheduleHourTableProps> = ({ intervalData, onRmGroupPress }) => {
-  const { interval } = intervalData
-
-  const rows = interval
+const ScheduleHourTable: FC<ScheduleHourTableProps> = ({ interval, onRmGroupPress }) => {
+  const rows = 'groups' in interval
     ? interval.groups.map(group => (
       <tr key={ group.id }>
         <td className='text-center align-middle'>{ group.name } ({ interval.classroom?.name })</td>

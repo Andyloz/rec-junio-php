@@ -4,7 +4,6 @@ import User from './shapes/User'
 import UserSchedule from './UserSchedule'
 import UserSelectorForm from './Forms/UserSelectorForm'
 import WelcomeLayer from './WelcomeLayer'
-import ScheduleInterval from './shapes/ScheduleInterval'
 import ScheduleHourSummary from './ScheduleHourSummary'
 import useSchedule from '../hooks/useSchedule'
 import useGroups from '../hooks/useGroups'
@@ -14,16 +13,22 @@ interface IProp {
   logout: () => void
 }
 
-export interface IntervalData {
-  day: number,
-  hour: number,
-  user: User,
-  interval?: ScheduleInterval
+export interface SelectedInterval {
+  day: number
+  hour: number
 }
 
 const Dashboard: FC<IProp> = ({ user, logout }) => {
 
-  const { schedule, user: selectedUser, setUser: setSelectedUser, refreshData } = useSchedule()
+  const { schedule, user: selectedUser, setUser: selectUser, refreshData } = useSchedule()
+  useEffect(() => {
+    if (selectedUser) {
+      refreshData()
+    } else if (user.tipo === UserType.Normal) {
+      selectUser(user)
+    }
+  }, [selectedUser])
+
   const { msg: groupMsg, removeMsg, ...groupsOp } = useGroups()
 
   const addGroup: typeof groupsOp.addGroup = (params) =>
@@ -32,30 +37,30 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
   const rmGroup: typeof groupsOp.rmGroup = (params) =>
     groupsOp.rmGroup(params).then(refreshData)
 
-  const [selectedIntervalData, setSelectedIntervalData] = useState<IntervalData>()
+  const [selectedInterval, selectInterval] = useState<SelectedInterval>()
 
-  useEffect(removeMsg, [selectedUser, selectedIntervalData])
-
-  const scheduleHourSummary = !selectedIntervalData ? undefined : (
-    <ScheduleHourSummary
-      msg={ groupMsg }
-      intervalData={ selectedIntervalData }
-      onRmGroupPress={ rmGroup }
-      onAddPressed={ addGroup }
-    />
-  )
-
-  // noinspection JSUnusedGlobalSymbols
-  const userScheduleProps =
-    { schedule, refreshData, onEditPress: (iData: IntervalData) => setSelectedIntervalData(iData) }
+  useEffect(removeMsg, [selectedUser, selectedInterval])
 
   const adminContent = (
     <>
-      <UserSelectorForm onSelectedUser={ u => setSelectedUser(u) } />
-      { selectedUser && (
+      <UserSelectorForm onSelectedUser={ selectUser } />
+      { selectedUser && schedule && (
         <>
-          <UserSchedule{ ...userScheduleProps } type={ UserType.Admin } user={ selectedUser } />
-          { scheduleHourSummary }
+          <UserSchedule
+            selectInterval={ selectInterval }
+            type={ UserType.Admin }
+            schedule={ schedule }
+            user={ selectedUser }
+          />
+          { selectedInterval &&
+            <ScheduleHourSummary
+              { ...selectedInterval }
+              user={ selectedUser }
+              msg={ groupMsg }
+              interval={ schedule[selectedInterval.day][selectedInterval.hour] }
+              onRmGroupPress={ rmGroup }
+              onAddPressed={ addGroup }
+            /> }
         </>
       ) }
     </>
@@ -67,7 +72,13 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
       <WelcomeLayer user={ user } onPressedLogout={ logout } />
       {
         user.tipo === UserType.Normal
-          ? <UserSchedule { ...userScheduleProps } type={ UserType.Normal } user={ user } />
+          ? schedule &&
+          <UserSchedule
+            selectInterval={ selectInterval }
+            type={ UserType.Normal }
+            schedule={ schedule }
+            user={ user }
+          />
           : adminContent
       }
     </div>

@@ -1,17 +1,14 @@
-import React, { FC, ReactNode, useEffect } from 'react'
-import User from '../shapes/User'
+import React, { FC, ReactNode } from 'react'
 import UserType from '../shapes/UserType'
 import Schedule from '../shapes/Schedule'
-import { IntervalData } from '../Dashboard'
+import { SelectedInterval } from '../Dashboard'
 
-export type OnEditPress = (data: IntervalData) => void
+export type OnEditPress = (data: SelectedInterval) => void
 
 export interface ScheduleTableProps {
   type: UserType
-  schedule?: Schedule
-  user: User
-  refreshData: () => void
-  onEditPress: OnEditPress
+  schedule: Schedule
+  selectInterval: OnEditPress
 }
 
 const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
@@ -22,9 +19,7 @@ const Cell: FC<{ children?: ReactNode }> = ({ children }) => (
   </td>
 )
 
-const ScheduleTable: FC<ScheduleTableProps> = ({ schedule, user, refreshData, type, onEditPress }) => {
-  useEffect(refreshData, [user])
-
+const ScheduleTable: FC<ScheduleTableProps> = ({ schedule, type, selectInterval }) => {
   const rowHeaders = [
     <></>,
     <th key={ `th${ 1 }` } className='text-center align-middle' scope='row'>8:15 - 9:15</th>,
@@ -55,7 +50,7 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ schedule, user, refreshData, ty
         continue
       }
 
-      const interval = schedule?.[day][hour]
+      const interval = schedule[day][hour]
       const col = []
 
       if (interval && 'day' in interval) {
@@ -74,10 +69,7 @@ const ScheduleTable: FC<ScheduleTableProps> = ({ schedule, user, refreshData, ty
           key='edit'
           role='button'
           className='link-primary'
-          onClick={ () => onEditPress({
-            day, hour, user,
-            interval: interval && 'day' in interval ? interval : undefined,
-          }) }
+          onClick={ () => selectInterval({ day, hour }) }
           children='Editar'
         />,
       )

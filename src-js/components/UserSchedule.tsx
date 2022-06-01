@@ -6,22 +6,19 @@ import Schedule from './shapes/Schedule'
 
 export interface UserScheduleProps {
   type: UserType
-  schedule?: Schedule
+  schedule: Schedule
   user: User
-  refreshData: () => void
-  onEditPress: OnEditPress
+  selectInterval: OnEditPress
 }
 
-const UserSchedule: FC<UserScheduleProps> = ({ schedule, user, refreshData, type, onEditPress }) => {
+const UserSchedule: FC<UserScheduleProps> = ({ schedule, user, type, selectInterval }) => {
   return (
     <section>
       <h3 className='mt-4 mt-sm-5 text-center'>Horario del profesor { user.nombre }</h3>
       <ScheduleTable
         schedule={schedule}
-        user={ user }
-        refreshData={refreshData}
         type={ type }
-        onEditPress={ onEditPress }
+        selectInterval={ selectInterval }
       />
     </section>
   )

@@ -2,11 +2,15 @@ import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
 import { buildParametrizedUrl, useFetch, useFetchWith } from '../../hooks/useFetch'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
-import { IntervalData } from '../Dashboard'
 import useGroups from '../../hooks/useGroups'
+import ScheduleInterval from '../shapes/ScheduleInterval'
+import User from '../shapes/User'
 
 export interface HourAdditionFormProps {
-  intervalData: IntervalData
+  day: number
+  hour: number
+  user: User
+  interval: ScheduleInterval | {}
   onAddPressed: ReturnType<typeof useGroups>['addGroup']
 }
 
@@ -18,9 +22,7 @@ type FreeClassroomsResponse = { 'free-classrooms': Classroom[] }
 type NormalGroupsResponse = { 'groups-with-classroom': Group[] }
 type OnGuardGroupsResponse = { 'groups-without-classroom': Group[] }
 
-const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPressed }) => {
-  const { day, hour, user, interval } = intervalData
-
+const HourAdditionForm: FC<HourAdditionFormProps> = ({ day, hour, user, interval, onAddPressed }) => {
   const [occpClassrooms, setOccpClassrooms] = useState<Classroom[]>()
   const [freeClassrooms, setFreeClassrooms] = useState<Classroom[]>()
 
@@ -41,8 +43,8 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPresse
 
   useEffect(() => {
     Promise.all([
-      doOccpClassRequest({ day: day, hour: hour }),
-      doFreeClassRequest({ day: day, hour: hour }),
+      doOccpClassRequest({ day, hour }),
+      doFreeClassRequest({ day, hour }),
       doNormalGroupsRequest(),
       doGuardGroupsRequest(),
     ])
@@ -61,8 +63,8 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPresse
   const groupsSelectRef = useRef<HTMLSelectElement>(null)
   const classroomSelectRef = useRef<HTMLSelectElement>(null)
 
-  const emptyInterval = !interval
-  const guardInterval = !!interval && interval.groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
+  const emptyInterval = !('day' in interval)
+  const guardInterval = !emptyInterval && interval.groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
 
   useEffect(() => {
     if (groupsSelectRef.current?.value) {
@@ -142,8 +144,10 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPresse
 
   const onSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
+    // noinspection JSIgnoredPromiseFromCall
     onAddPressed({
-      day, hour, 'id-user': user.id_usuario,
+      day, hour,
+      'id-user': user.id_usuario,
       'id-group': parseInt(groupsSelectRef.current?.value as string),
       'id-classroom': parseInt(classroomSelectRef.current?.value as string),
     })

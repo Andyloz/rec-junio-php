@@ -2,12 +2,16 @@ import React, { FC } from 'react'
 import HourAdditionForm from './Forms/HourAdditionForm'
 import ScheduleHourTable from './Tables/ScheduleHourTable'
 import classNames from 'classnames'
-import { IntervalData } from './Dashboard'
 import useGroups, { GroupActionMsg } from '../hooks/useGroups'
+import ScheduleInterval from './shapes/ScheduleInterval'
+import User from './shapes/User'
 
 interface IProps {
   msg?: GroupActionMsg
-  intervalData: IntervalData
+  user: User
+  day: number
+  hour: number
+  interval: ScheduleInterval | {}
   onRmGroupPress: ReturnType<typeof useGroups>['rmGroup']
   onAddPressed: ReturnType<typeof useGroups>['addGroup']
 }
@@ -39,15 +43,14 @@ const fDays: { [k: number]: string } = {
   5: 'Viernes',
 }
 
-const ScheduleHourSummary: FC<IProps> = ({ intervalData, onRmGroupPress, onAddPressed, msg }) => {
-  const titleContent =
-    `Editando la ${ fHours[intervalData.hour] } (${ fHourIntervals[intervalData.hour] }) del ${ fDays[intervalData.day] }`
+const ScheduleHourSummary: FC<IProps> = ({ day, hour, user, interval, onRmGroupPress, onAddPressed, msg }) => {
+  const titleContent = `Editando la ${ fHours[hour] } (${ fHourIntervals[hour] }) del ${ fDays[day] }`
 
   return (
     <section className='mt-4'>
       <h3>{ titleContent }</h3>
-      <ScheduleHourTable intervalData={ intervalData } onRmGroupPress={ onRmGroupPress } />
-      <HourAdditionForm intervalData={ intervalData } onAddPressed={ onAddPressed } />
+      <ScheduleHourTable interval={ interval } onRmGroupPress={ onRmGroupPress } />
+      <HourAdditionForm day={ day } hour={ hour } user={ user } interval={ interval } onAddPressed={ onAddPressed } />
       { msg &&
         <div
           role='alert'
