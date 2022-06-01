@@ -24,7 +24,13 @@ export interface IntervalData {
 const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   const { schedule, user: selectedUser, setUser: setSelectedUser, refreshData } = useSchedule()
-  const { msg: groupMsg, rmGroup, addGroup, removeMsg } = useGroups()
+  const { msg: groupMsg, removeMsg, ...groupsOp } = useGroups()
+
+  const addGroup: typeof groupsOp.addGroup = (params) =>
+    groupsOp.addGroup(params).then(refreshData)
+
+  const rmGroup: typeof groupsOp.rmGroup = (params) =>
+    groupsOp.rmGroup(params).then(refreshData)
 
   const [selectedIntervalData, setSelectedIntervalData] = useState<IntervalData>()
 
