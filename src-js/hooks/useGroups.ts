@@ -38,13 +38,11 @@ const useGroups = () => {
     }
   }
 
-  const addGroup = (params: AddGroupReq) => {
+  const addGroup = (params: AddGroupReq) =>
     addGroupReq(params).then(handleResponse)
-  }
 
-  const rmGroup = (params: RmGroupReq) => {
+  const rmGroup = (params: RmGroupReq) =>
     removeGroupReq(params).then(handleResponse)
-  }
 
   const removeMsg = () => setMsg(undefined)
 
