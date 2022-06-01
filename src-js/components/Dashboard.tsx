@@ -39,7 +39,14 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   const [selectedInterval, selectInterval] = useState<SelectedInterval>()
 
-  useEffect(removeMsg, [selectedUser, selectedInterval])
+  useEffect(() => {
+    selectInterval(undefined)
+    removeMsg()
+  }, [selectedUser])
+
+  useEffect(() => {
+    removeMsg()
+  }, [selectedInterval])
 
   const adminContent = (
     <>
