@@ -174,6 +174,34 @@ class DataChangeController
       ]);
 
     $query = $pdo->prepare("
+SELECT horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo, grupos.nombre, horario_lectivo.usuario
+FROM horario_lectivo 
+    JOIN aulas ON horario_lectivo.aula = aulas.id_aula
+    JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo 
+WHERE horario_lectivo.dia = :dayID 
+  AND horario_lectivo.hora = :hourID
+  AND aulas.id_aula = :classroomID
+  AND aulas.id_aula != 64
+  "
+    );
+    $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
+    $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
+    $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+    $query->execute();
+
+    $occupiedScheduleResult = $query->fetchAll();
+    $groupsInClassroom = [];
+    foreach ($occupiedScheduleResult as $sheduleRow)
+      if ($body['id-group'] != $sheduleRow['grupo'])
+        $groupsInClassroom[] = $sheduleRow;
+
+    if (!empty($groupsInClassroom))
+      return $response->withJson([
+        'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada por el profesor ' . $sheduleRow['usuario'],
+        'groups-in-classroom' => $groupsInClassroom
+      ]);
+
+    $query = $pdo->prepare("
 SELECT horario_lectivo.grupo, grupos.nombre nombre_grupo, horario_lectivo.aula, aulas.nombre nombre_aula 
 FROM horario_lectivo 
     JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo
@@ -189,45 +217,15 @@ WHERE horario_lectivo.usuario = :userID
 
     $result = $query->fetchAll();
 
-    if (empty($result)) {
-      $query = $pdo->prepare("
-SELECT horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo, grupos.nombre, horario_lectivo.usuario
-FROM horario_lectivo 
-    JOIN aulas ON horario_lectivo.aula = aulas.id_aula
-    JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo 
-WHERE horario_lectivo.dia = :dayID 
-  AND horario_lectivo.hora = :hourID
-  AND aulas.id_aula = :classroomID
-  AND aulas.id_aula != 64
-  "
-      );
-      $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
-      $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
-      $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
-      $query->execute();
-
-      $occupiedScheduleResult = $query->fetchAll();
-      $groupsInClassroom = [];
-      foreach ($occupiedScheduleResult as $sheduleRow)
-        if ($body['id-group'] != $sheduleRow['grupo'])
-          $groupsInClassroom[] = $sheduleRow;
-
-      if (!empty($groupsInClassroom))
-        return $response->withJson([
-          'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada por el profesor ' . $sheduleRow['usuario'],
-          'groups-in-classroom' => $groupsInClassroom
-        ]);
-    }
-
     if ($result) {
       foreach ($result as $scheduleRow) {
 
-        if (substr($scheduleRow['nombre_grupo'], 0, 1) == 'G' || $scheduleRow['nombre_grupo'] == 'FDIR')
+        if (str_starts_with($scheduleRow['nombre_grupo'], 'G') || $scheduleRow['nombre_grupo'] == 'FDIR')
           return $response->withJson([
             'msg' => 'No es posible añadir. Ya hay un grupo sin aula en esta hora en el horario del profesor ' . $body['id-user']
           ]);
 
-        if (substr($resultGroup['nombre'], 0, 1) == 'G' || $resultGroup['nombre'] == 'FDIR')
+        if (str_starts_with($resultGroup['nombre'], 'G') || $resultGroup['nombre'] == 'FDIR')
           return $response->withJson([
             'msg' => 'No es posible añadir un grupo sin aula en esta hora en el horario del profesor ' . $body['id-user'] . ' porque ya hay un grupo registrado'
           ]);
@@ -237,7 +235,7 @@ WHERE horario_lectivo.dia = :dayID
             'msg' => 'No es posible añadir dos aulas en una misma hora'
           ]);
 
-        if ($body['id-group'] == $scheduleRow['grupo'] && $body['id-classroom'] == $scheduleRow['aula'])
+        if ($body['id-group'] == $scheduleRow['grupo'])
           return $response->withJson([
             'msg' => 'El grupo ' . $resultGroup['nombre'] . ' en el aula ' . $resultClassroom['nombre'] .
               ' ya está añadido a esta hora en el horario del profesor ' . $body['id-user']
