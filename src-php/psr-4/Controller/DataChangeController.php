@@ -5,9 +5,9 @@ namespace FAFL\RecJunioPhp\Controller;
 use FAFL\RecJunioPhp\Data\Connection;
 use FAFL\RecJunioPhp\Security\Validation;
 use FAFL\RecJunioPhp\VendorExtend\MyResponse;
+use PDO;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Psr7\Request;
-use PDO;
 
 class DataChangeController
 {
@@ -163,19 +163,25 @@ class DataChangeController
       'msg' => 'El aula no existe'
     ]);
 
-    if (substr($resultGroup['nombre'], 0, 1) != 'G' && $resultGroup['nombre'] != 'FDIR' && $resultClassroom['nombre'] == 'Sin asignar o sin aula')
+    if (!str_starts_with($resultGroup['nombre'], 'G') && $resultGroup['nombre'] != 'FDIR' && $resultClassroom['nombre'] == 'Sin asignar o sin aula')
       return $response->withJson([
         'msg' => 'El grupo ' . $resultGroup['nombre'] . ' debe tener un aula asignada'
       ]);
 
-    if ((substr($resultGroup['nombre'], 0, 1) == 'G' || $resultGroup['nombre'] == 'FDIR') && $resultClassroom['nombre'] != 'Sin asignar o sin aula')
+    if ((str_starts_with($resultGroup['nombre'], 'G') || $resultGroup['nombre'] == 'FDIR') && $resultClassroom['nombre'] != 'Sin asignar o sin aula')
       return $response->withJson([
         'msg' => 'El grupo ' . $resultGroup['nombre'] . ' no puede tener un aula asignada'
       ]);
 
-    $query = $pdo->prepare("SELECT horario_lectivo.grupo, grupos.nombre nombre_grupo, horario_lectivo.aula, aulas.nombre nombre_aula FROM horario_lectivo " .
-      "JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo JOIN aulas ON horario_lectivo.aula = aulas.id_aula WHERE horario_lectivo.usuario = :userID AND " .
-      "horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID");
+    $query = $pdo->prepare("
+SELECT horario_lectivo.grupo, grupos.nombre nombre_grupo, horario_lectivo.aula, aulas.nombre nombre_aula 
+FROM horario_lectivo 
+    JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo
+    JOIN aulas ON horario_lectivo.aula = aulas.id_aula
+WHERE horario_lectivo.usuario = :userID 
+  AND horario_lectivo.dia = :dayID
+  AND horario_lectivo.hora = :hourID"
+    );
     $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
     $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
     $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
@@ -184,9 +190,17 @@ class DataChangeController
     $result = $query->fetchAll();
 
     if (empty($result)) {
-      $query = $pdo->prepare("SELECT horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo, grupos.nombre, horario_lectivo.usuario " .
-        "FROM horario_lectivo JOIN aulas ON horario_lectivo.aula = aulas.id_aula JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo WHERE horario_lectivo.dia = :dayID " .
-        "AND horario_lectivo.hora = :hourID AND aulas.id_aula = :classroomID");
+      $query = $pdo->prepare("
+SELECT horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo, grupos.nombre, horario_lectivo.usuario
+FROM horario_lectivo 
+    JOIN aulas ON horario_lectivo.aula = aulas.id_aula
+    JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo 
+WHERE horario_lectivo.dia = :dayID 
+  AND horario_lectivo.hora = :hourID
+  AND aulas.id_aula = :classroomID
+  AND aulas.id_aula != 64
+  "
+      );
       $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
       $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
       $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
@@ -194,7 +208,9 @@ class DataChangeController
 
       $occupiedScheduleResult = $query->fetchAll();
       $groupsInClassroom = [];
-      foreach ($occupiedScheduleResult as $sheduleRow) if ($body['id-group'] != $sheduleRow['grupo']) $groupsInClassroom[] = $sheduleRow;
+      foreach ($occupiedScheduleResult as $sheduleRow)
+        if ($body['id-group'] != $sheduleRow['grupo'])
+          $groupsInClassroom[] = $sheduleRow;
 
       if (!empty($groupsInClassroom))
         return $response->withJson([
