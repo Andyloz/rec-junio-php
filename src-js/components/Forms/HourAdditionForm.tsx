@@ -78,7 +78,14 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ intervalData, onAddPresse
 
   const groupsSelect = (
     <select ref={ groupsSelectRef } id='id-group' name='id-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
-            style={ { maxWidth: 'max-content' } } disabled={ guardInterval } defaultValue={ 52 }>
+            style={ { maxWidth: 'max-content' } } disabled={ guardInterval } defaultValue={ 52 }
+            onChange={ e => {
+              const onGuardGroup = onGuardGroups && onGuardGroups.some(g => g.id === Number(e.target.value))
+              if (onGuardGroup && classroomSelectRef.current) {
+                classroomSelectRef.current.value = '64'
+              }
+            }}
+    >
       {
         Object.entries(selectGroups).map(([title, groups]) => (
           !groups || guardInterval ? undefined : (
