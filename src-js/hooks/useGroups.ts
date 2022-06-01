@@ -17,6 +17,8 @@ interface RmGroupReq {
   'id-schedule': number
 }
 
+// todo: add groups fetch
+
 const useGroups = () => {
   const { doRequest: removeGroupReq } = useFetchWith.bodyParams<RmGroupReq, GroupResponse>(
     'api/remove-group-in-hour', { method: 'DELETE' },
