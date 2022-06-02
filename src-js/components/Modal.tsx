@@ -1,21 +1,24 @@
-import React from 'react'
+import React, { FC, ReactNode } from 'react'
 
-const Modal = () => {
+interface ModalProps {
+  title: string
+  body: ReactNode
+  buttons: ReactNode
+}
+
+const Modal: FC<ModalProps> = ({ title, body, buttons }) => {
   return (
-    <div id='classroom-change-confirmation-modal' className='modal' tabIndex={ -1 }>
-      <div className='modal-dialog modal-dialog-centered modal-dialog-scrollable'>
+    <div className='modal' tabIndex={ -1 } style={ { display: 'block', background: 'rgba(0, 0, 0, .4)' } }>
+      <div className='modal-dialog'>
         <div className='modal-content'>
           <div className='modal-header'>
-            <h5 className='modal-title'>Confirmación de cambio de aula</h5>
-            <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+            <h5 className='modal-title'>{ title }</h5>
           </div>
           <div className='modal-body'>
-            <p>Has seleccionado un aula que está siendo usada por</p>
-            <p>Para añadir este aula</p>
+            { body }
           </div>
           <div className='modal-footer'>
-            <button type='button' className='btn btn-secondary' data-bs-dismiss='modal'>Cancelar</button>
-            <button type='button' className='btn btn-primary'>Cambiar</button>
+            { buttons }
           </div>
         </div>
       </div>
