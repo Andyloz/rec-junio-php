@@ -9,7 +9,7 @@ interface ClassroomsList {
     free: { 'free-classrooms': Classroom[] }
     params: { day: number, hour: number }
   }
-  state: { [title: string]: Classroom[] }
+  state: Record<'Libres' | 'Ocupadas', Classroom[]>
 }
 
 interface GroupsList {
@@ -17,7 +17,7 @@ interface GroupsList {
     normal: { 'groups-with-classroom': Group[] }
     guard: { 'groups-without-classroom': Group[] }
   }
-  state: { [title: string]: Group[] }
+  state: Record<'Con aula' | 'Sin aula', Group[]>
 }
 
 const useClassroomsGroups = () => {
