@@ -46,7 +46,7 @@ const HourAdditionForm: FC<HourAdditionFormProps> = (
         groupsSelect.value = firstOption.value
       }
     }
-  }, [])
+  }, [user, interval])
 
   const groupsSelectOnChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
     const onGuardGroup = groups['Sin aula'].some(g => g.id === Number(e.target.value))
@@ -83,7 +83,7 @@ const HourAdditionForm: FC<HourAdditionFormProps> = (
     } else {
       classroomsSelect.value = interval.classroom?.id + ''
     }
-  }, [])
+  }, [user, interval])
 
   const classroomsSelect = (
     <select ref={ classroomSelectRef } id='id-classroom' name='id-classroom'
