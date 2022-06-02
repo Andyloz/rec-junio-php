@@ -2,8 +2,13 @@ import { useState } from 'react'
 import { useFetchWith } from './useFetch'
 import Message from '../components/shapes/Message'
 
+export type AddOccupiedClassroomRes = { 'id_horario': number, 'usuario': number, 'grupo': number, 'nombre': string }
 export type GroupActionMsg = Message<'info' | 'error' | 'warning'>
-export type GroupResponse = { 'msg': string } | { 'error': string } | { 'success-msg': string }
+export type GroupResponse =
+  | { 'msg': string }
+  | { 'error': string }
+  | { 'success-msg': string }
+  | { msg: string, 'groups-in-classroom': AddOccupiedClassroomRes[] }
 
 interface AddGroupReq {
   day: number,
@@ -17,8 +22,6 @@ interface RmGroupReq {
   'id-schedule': number
 }
 
-// todo: add groups fetch
-
 const useGroupsOp = () => {
   const { doRequest: removeGroupReq } = useFetchWith.bodyParams<RmGroupReq, GroupResponse>(
     'api/remove-group-in-hour', { method: 'DELETE' },
@@ -27,14 +30,21 @@ const useGroupsOp = () => {
     'api/insert-group-in-hour',
   )
   const [msg, setMsg] = useState<GroupActionMsg>()
+  const removeMsg = () => setMsg(undefined)
+
+  const [occupiedClassrooms, setOccupiedClassrooms] = useState<AddOccupiedClassroomRes[]>()
+  const removeOccupiedClassrooms = () => setOccupiedClassrooms(undefined)
 
   const handleResponse = (res: GroupResponse) => {
-    if ('msg' in res) {
-      setMsg({ content: res['msg'], type: 'warning' })
-    } else if ('error' in res) {
+    if ('error' in res) {
       setMsg({ content: res['error'], type: 'error' })
-    } else {  // success
+    } else if ('success-msg' in res) {  // success
       setMsg({ content: res['success-msg'], type: 'info' })
+    } else if ('msg' in res) {
+      setMsg({ content: res['msg'], type: 'warning' })
+      if ('groups-in-classroom' in res) {
+        setOccupiedClassrooms(res['groups-in-classroom'])
+      }
     }
   }
 
@@ -44,9 +54,7 @@ const useGroupsOp = () => {
   const rmGroup = (params: RmGroupReq) =>
     removeGroupReq(params).then(handleResponse)
 
-  const removeMsg = () => setMsg(undefined)
-
-  return { addGroup, rmGroup, msg, removeMsg }
+  return { addGroup, rmGroup, msg, removeMsg, occupiedClassrooms, removeOccupiedClassrooms }
 }
 
 export default useGroupsOp
