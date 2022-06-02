@@ -8,6 +8,7 @@ import ScheduleHourSummary from './ScheduleHourSummary'
 import useSchedule from '../hooks/useSchedule'
 import useGroupsOp from '../hooks/useGroupsOp'
 import useClassroomsGroups from '../hooks/useClassesGroups'
+import OccupiedClassroomModal from './OccupiedClassroomModal'
 
 interface IProp {
   user: User
@@ -37,10 +38,11 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
     }
   }, [selectedUser])
 
-  const { msg: groupMsg, removeMsg, ...groupsOp } = useGroupsOp()
+  const { msg: groupMsg, removeMsg, occupiedClassrooms, removeOccupiedClassrooms, ...groupsOp } = useGroupsOp()
 
   const addGroup: typeof groupsOp.addGroup = (params) => groupsOp.addGroup(params).then(refreshData)
   const rmGroup: typeof groupsOp.rmGroup = (params) => groupsOp.rmGroup(params).then(refreshData)
+  const repeatLastAddGroup: typeof groupsOp.repeatLastAddGroup = () => groupsOp.repeatLastAddGroup().then(refreshData)
 
   const [selectedInterval, selectInterval] = useState<SelectedInterval>()
 
@@ -62,6 +64,14 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   const adminContent = (
     <>
+      { selectedInterval && classrooms && occupiedClassrooms &&
+        <OccupiedClassroomModal
+          freeClassrooms={ classrooms['Libres'] }
+          selectedInterval={ selectedInterval }
+          occupiedClassrooms={ occupiedClassrooms }
+          removeOccupiedClassrooms={ removeOccupiedClassrooms }
+          repeatLastAddGroup={ repeatLastAddGroup }
+        /> }
       <UserSelectorForm onSelectedUser={ selectUser } />
       { selectedUser && schedule && (
         <>

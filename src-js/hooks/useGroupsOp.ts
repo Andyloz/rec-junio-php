@@ -48,13 +48,24 @@ const useGroupsOp = () => {
     }
   }
 
-  const addGroup = (params: AddGroupReq) =>
-    addGroupReq(params).then(handleResponse)
+  const addGroup = (params: AddGroupReq) => {
+    setLastParams(params)
+    return addGroupReq(params).then(handleResponse)
+  }
 
   const rmGroup = (params: RmGroupReq) =>
     removeGroupReq(params).then(handleResponse)
 
-  return { addGroup, rmGroup, msg, removeMsg, occupiedClassrooms, removeOccupiedClassrooms }
+  const [lastParams, setLastParams] = useState<AddGroupReq>()
+  const repeatLastAddGroup = () => {
+    if (!lastParams) {
+      console.log('No params to repeat last addGroup request')
+      return Promise.resolve()
+    }
+    return addGroup(lastParams)
+  }
+
+  return { addGroup, rmGroup, msg, removeMsg, occupiedClassrooms, removeOccupiedClassrooms, repeatLastAddGroup }
 }
 
 export default useGroupsOp
