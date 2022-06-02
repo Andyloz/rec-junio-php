@@ -2,7 +2,7 @@ import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
 import { buildParametrizedUrl, useFetch, useFetchWith } from '../../hooks/useFetch'
 import Group from '../shapes/Group'
 import Classroom from '../shapes/Classroom'
-import useGroups from '../../hooks/useGroups'
+import useGroupsOp from '../../hooks/useGroupsOp'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import User from '../shapes/User'
 
@@ -11,7 +11,7 @@ export interface HourAdditionFormProps {
   hour: number
   user: User
   interval: ScheduleInterval | {}
-  onAddPressed: ReturnType<typeof useGroups>['addGroup']
+  onAddPressed: ReturnType<typeof useGroupsOp>['addGroup']
 }
 
 // todo: message

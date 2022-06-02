@@ -6,7 +6,7 @@ import UserSelectorForm from './Forms/UserSelectorForm'
 import WelcomeLayer from './WelcomeLayer'
 import ScheduleHourSummary from './ScheduleHourSummary'
 import useSchedule from '../hooks/useSchedule'
-import useGroups from '../hooks/useGroups'
+import useGroupsOp from '../hooks/useGroupsOp'
 
 interface IProp {
   user: User
@@ -29,13 +29,10 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
     }
   }, [selectedUser])
 
-  const { msg: groupMsg, removeMsg, ...groupsOp } = useGroups()
+  const { msg: groupMsg, removeMsg, ...groupsOp } = useGroupsOp()
 
-  const addGroup: typeof groupsOp.addGroup = (params) =>
-    groupsOp.addGroup(params).then(refreshData)
-
-  const rmGroup: typeof groupsOp.rmGroup = (params) =>
-    groupsOp.rmGroup(params).then(refreshData)
+  const addGroup: typeof groupsOp.addGroup = (params) => groupsOp.addGroup(params).then(refreshData)
+  const rmGroup: typeof groupsOp.rmGroup = (params) => groupsOp.rmGroup(params).then(refreshData)
 
   const [selectedInterval, selectInterval] = useState<SelectedInterval>()
 

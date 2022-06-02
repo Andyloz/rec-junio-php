@@ -19,7 +19,7 @@ interface RmGroupReq {
 
 // todo: add groups fetch
 
-const useGroups = () => {
+const useGroupsOp = () => {
   const { doRequest: removeGroupReq } = useFetchWith.bodyParams<RmGroupReq, GroupResponse>(
     'api/remove-group-in-hour', { method: 'DELETE' },
   )
@@ -49,4 +49,4 @@ const useGroups = () => {
   return { addGroup, rmGroup, msg, removeMsg }
 }
 
-export default useGroups
+export default useGroupsOp

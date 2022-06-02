@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import HourAdditionForm from './Forms/HourAdditionForm'
 import ScheduleHourTable from './Tables/ScheduleHourTable'
 import classNames from 'classnames'
-import useGroups, { GroupActionMsg } from '../hooks/useGroups'
+import useGroupsOp, { GroupActionMsg } from '../hooks/useGroupsOp'
 import ScheduleInterval from './shapes/ScheduleInterval'
 import User from './shapes/User'
 
@@ -12,8 +12,8 @@ interface IProps {
   day: number
   hour: number
   interval: ScheduleInterval | {}
-  onRmGroupPress: ReturnType<typeof useGroups>['rmGroup']
-  onAddPressed: ReturnType<typeof useGroups>['addGroup']
+  onRmGroupPress: ReturnType<typeof useGroupsOp>['rmGroup']
+  onAddPressed: ReturnType<typeof useGroupsOp>['addGroup']
 }
 
 const fHourIntervals: { [k: number]: string } = {

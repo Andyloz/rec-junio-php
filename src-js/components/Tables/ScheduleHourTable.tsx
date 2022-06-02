@@ -1,10 +1,10 @@
 import React, { FC } from 'react'
 import ScheduleInterval from '../shapes/ScheduleInterval'
-import useGroups from '../../hooks/useGroups'
+import useGroupsOp from '../../hooks/useGroupsOp'
 
 export interface ScheduleHourTableProps {
   interval: ScheduleInterval | {}
-  onRmGroupPress: ReturnType<typeof useGroups>['rmGroup']
+  onRmGroupPress: ReturnType<typeof useGroupsOp>['rmGroup']
 }
 
 const ScheduleHourTable: FC<ScheduleHourTableProps> = ({ interval, onRmGroupPress }) => {
