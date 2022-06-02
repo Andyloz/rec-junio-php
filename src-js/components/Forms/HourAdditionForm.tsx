@@ -1,65 +1,32 @@
-import React, { FC, FormEventHandler, useEffect, useRef, useState } from 'react'
-import { buildParametrizedUrl, useFetch, useFetchWith } from '../../hooks/useFetch'
-import Group from '../shapes/Group'
-import Classroom from '../shapes/Classroom'
+import React, { ChangeEventHandler, FC, FormEventHandler, useEffect, useRef } from 'react'
 import useGroupsOp from '../../hooks/useGroupsOp'
 import ScheduleInterval from '../shapes/ScheduleInterval'
 import User from '../shapes/User'
+import useClassroomsGroups from '../../hooks/useClassesGroups'
 
 export interface HourAdditionFormProps {
   day: number
   hour: number
   user: User
   interval: ScheduleInterval | {}
+  groups: Exclude<ReturnType<typeof useClassroomsGroups>['groups'], undefined>
+  classrooms: Exclude<ReturnType<typeof useClassroomsGroups>['classrooms'], undefined>
   onAddPressed: ReturnType<typeof useGroupsOp>['addGroup']
 }
 
+const GUARD_GROUP_ID = 51
+const UNASSIGNED_CLASSROOM_ID = 64
+
 // todo: message
 
-type OccpClassroomsResponse = { 'occupied-classrooms': Classroom[] }
-type FreeClassroomsResponse = { 'free-classrooms': Classroom[] }
-
-type NormalGroupsResponse = { 'groups-with-classroom': Group[] }
-type OnGuardGroupsResponse = { 'groups-without-classroom': Group[] }
-
-const HourAdditionForm: FC<HourAdditionFormProps> = ({ day, hour, user, interval, onAddPressed }) => {
-  const [occpClassrooms, setOccpClassrooms] = useState<Classroom[]>()
-  const [freeClassrooms, setFreeClassrooms] = useState<Classroom[]>()
-
-  const [normalGroups, setNormalGroups] = useState<Group[]>()
-  const [onGuardGroups, setOnGuardGroups] = useState<Group[]>()
-
-  const { doRequest: doOccpClassRequest } =
-    useFetchWith.urlPlaceholders<{ day: number, hour: number }, OccpClassroomsResponse>(
-      buildParametrizedUrl`api/obtain-occupied-classrooms/${ 'day' }/${ 'hour' }`,
-    )
-  const { doRequest: doFreeClassRequest } =
-    useFetchWith.urlPlaceholders<{ day: number, hour: number }, FreeClassroomsResponse>(
-      buildParametrizedUrl`api/obtain-free-classrooms/${ 'day' }/${ 'hour' }`,
-    )
-
-  const { doRequest: doNormalGroupsRequest } = useFetch<NormalGroupsResponse>('api/obtain-groups-with-classroom')
-  const { doRequest: doGuardGroupsRequest } = useFetch<OnGuardGroupsResponse>('api/obtain-groups-without-classroom')
-
-  useEffect(() => {
-    Promise.all([
-      doOccpClassRequest({ day, hour }),
-      doFreeClassRequest({ day, hour }),
-      doNormalGroupsRequest(),
-      doGuardGroupsRequest(),
-    ])
-      .then(([occpClassroomsResponse, freeClassroomsResponse,
-               normalGroupsResponse, onGuardGroupsResponse]) => {
-        setOccpClassrooms(occpClassroomsResponse['occupied-classrooms'])
-        setFreeClassrooms(freeClassroomsResponse['free-classrooms'])
-        setNormalGroups(normalGroupsResponse['groups-with-classroom'])
-        setOnGuardGroups(onGuardGroupsResponse['groups-without-classroom'])
-      })
-  }, [])
-
-  const selectGroups = { 'Con aula': normalGroups, 'Sin aula': onGuardGroups }
-  const selectClassrooms = { 'Aulas ocupadas': occpClassrooms, 'Aulas libres': freeClassrooms }
-
+const HourAdditionForm: FC<HourAdditionFormProps> = (
+  {
+    day, hour,
+    user, interval,
+    groups, classrooms,
+    onAddPressed,
+  },
+) => {
   const groupsSelectRef = useRef<HTMLSelectElement>(null)
   const classroomSelectRef = useRef<HTMLSelectElement>(null)
 
@@ -67,30 +34,36 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ day, hour, user, interval
   const guardInterval = !emptyInterval && interval.groups.some(g => g.name.startsWith('G') || g.name === 'FDIR')
 
   useEffect(() => {
-    if (groupsSelectRef.current?.value) {
-      if (emptyInterval) {
-        groupsSelectRef.current.value = '51'
-        return
-      }
-      const value = groupsSelectRef.current.querySelector('option')?.value
-      if (!value) return
-      groupsSelectRef.current.value = value
+    const groupsSelect = groupsSelectRef.current
+    if (!groupsSelect) {
+      return
     }
-  }, [onGuardGroups, freeClassrooms, interval])
+    if (emptyInterval) {
+      groupsSelect.value = GUARD_GROUP_ID + ''
+    } else {
+      const firstOption = groupsSelectRef.current.querySelector('option')
+      if (firstOption) {
+        groupsSelect.value = firstOption.value
+      }
+    }
+  }, [])
+
+  const groupsSelectOnChange: ChangeEventHandler<HTMLSelectElement> = (e) => {
+    const onGuardGroup = groups['Sin aula'].some(g => g.id === Number(e.target.value))
+    if (onGuardGroup && classroomSelectRef.current) {
+      classroomSelectRef.current.value = UNASSIGNED_CLASSROOM_ID + ''
+    }
+  }
 
   const groupsSelect = (
-    <select ref={ groupsSelectRef } id='id-group' name='id-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
-            style={ { maxWidth: 'max-content' } } disabled={ guardInterval } defaultValue={ 52 }
-            onChange={ e => {
-              const onGuardGroup = onGuardGroups && onGuardGroups.some(g => g.id === Number(e.target.value))
-              if (onGuardGroup && classroomSelectRef.current) {
-                classroomSelectRef.current.value = '64'
-              }
-            }}
+    <select
+      ref={ groupsSelectRef } id='id-group' name='id-group' className='form-select mb-3 w-25 me-4 mb-sm-0'
+      style={ { maxWidth: 'max-content' } } disabled={ guardInterval } defaultValue={ 52 }
+      onChange={ groupsSelectOnChange }
     >
       {
-        Object.entries(selectGroups).map(([title, groups]) => (
-          !groups || guardInterval ? undefined : (
+        Object.entries(groups).map(([title, groups]) => (
+          guardInterval ? undefined : (
             <optgroup key={ title } label={ title }>
               { groups.map(g => <option key={ g.id } value={ g.id } children={ g.name } />) }
             </optgroup>
@@ -101,30 +74,24 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ day, hour, user, interval
   )
 
   useEffect(() => {
-    if (classroomSelectRef.current?.value) {
-      if (emptyInterval) {
-        classroomSelectRef.current.value = '64'
-        return
-      }
-      const value = classroomSelectRef.current.querySelector('option')?.value
-      if (!value) return
-      classroomSelectRef.current.value = value
+    const classroomsSelect = classroomSelectRef.current
+    if (!classroomsSelect) {
+      return
     }
-  }, [freeClassrooms, interval])
-
-  useEffect(() => {
-    if (classroomSelectRef.current?.value && !emptyInterval) {
-      classroomSelectRef.current.value = interval.classroom.id + ''
+    if (emptyInterval) {
+      classroomsSelect.value = UNASSIGNED_CLASSROOM_ID + ''
+    } else {
+      classroomsSelect.value = interval.classroom?.id + ''
     }
-  }, [freeClassrooms, interval])
+  }, [])
 
   const classroomsSelect = (
     <select ref={ classroomSelectRef } id='id-classroom' name='id-classroom'
             className='form-select mb-3 w-25 me-4 mb-sm-0'
             style={ { maxWidth: 'max-content' } } disabled={ !emptyInterval }>
       {
-        Object.entries(selectClassrooms).map(([title, classrooms]) => (
-          !classrooms || guardInterval ? undefined : (
+        Object.entries(classrooms).map(([title, classrooms]) => (
+          guardInterval ? undefined : (
             <optgroup key={ title } label={ title }>
               { classrooms.map(c => <option key={ c.id } value={ c.id } children={ c.name } />) }
             </optgroup>
@@ -132,14 +99,6 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ day, hour, user, interval
         ))
       }
     </select>
-  )
-
-  const button = (
-    <button
-      type='submit' className='btn btn-primary'
-      disabled={ guardInterval }
-      children='Añadir'
-    />
   )
 
   const onSubmitHandler: FormEventHandler<HTMLFormElement> = (e) => {
@@ -159,7 +118,11 @@ const HourAdditionForm: FC<HourAdditionFormProps> = ({ day, hour, user, interval
       { groupsSelect }
       <label htmlFor='id-classroom' className='form-label m-0 mb-2 me-4 mb-sm-0'>Aula</label>
       { classroomsSelect }
-      { button }
+      <button
+        type='submit' className='btn btn-primary'
+        disabled={ guardInterval }
+        children='Añadir'
+      />
     </form>
   )
 }

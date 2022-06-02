@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import useGroupsOp, { GroupActionMsg } from '../hooks/useGroupsOp'
 import ScheduleInterval from './shapes/ScheduleInterval'
 import User from './shapes/User'
+import useClassroomsGroups from '../hooks/useClassesGroups'
 
 interface IProps {
   msg?: GroupActionMsg
@@ -12,6 +13,8 @@ interface IProps {
   day: number
   hour: number
   interval: ScheduleInterval | {}
+  groups: Exclude<ReturnType<typeof useClassroomsGroups>['groups'], undefined>
+  classrooms: Exclude<ReturnType<typeof useClassroomsGroups>['classrooms'], undefined>
   onRmGroupPress: ReturnType<typeof useGroupsOp>['rmGroup']
   onAddPressed: ReturnType<typeof useGroupsOp>['addGroup']
 }
@@ -43,14 +46,27 @@ const fDays: { [k: number]: string } = {
   5: 'Viernes',
 }
 
-const ScheduleHourSummary: FC<IProps> = ({ day, hour, user, interval, onRmGroupPress, onAddPressed, msg }) => {
+const ScheduleHourSummary: FC<IProps> = (
+  {
+    day, hour,
+    user, interval,
+    groups, classrooms,
+    onRmGroupPress, onAddPressed,
+    msg
+  }
+) => {
   const titleContent = `Editando la ${ fHours[hour] } (${ fHourIntervals[hour] }) del ${ fDays[day] }`
 
   return (
     <section className='mt-4'>
       <h3>{ titleContent }</h3>
       <ScheduleHourTable interval={ interval } onRmGroupPress={ onRmGroupPress } />
-      <HourAdditionForm day={ day } hour={ hour } user={ user } interval={ interval } onAddPressed={ onAddPressed } />
+      <HourAdditionForm
+        day={ day } hour={ hour }
+        user={ user } interval={ interval }
+        groups={groups} classrooms={classrooms}
+        onAddPressed={ onAddPressed }
+      />
       { msg &&
         <div
           role='alert'

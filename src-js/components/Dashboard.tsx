@@ -7,6 +7,7 @@ import WelcomeLayer from './WelcomeLayer'
 import ScheduleHourSummary from './ScheduleHourSummary'
 import useSchedule from '../hooks/useSchedule'
 import useGroupsOp from '../hooks/useGroupsOp'
+import useClassroomsGroups from '../hooks/useClassesGroups'
 
 interface IProp {
   user: User
@@ -20,10 +21,17 @@ export interface SelectedInterval {
 
 const Dashboard: FC<IProp> = ({ user, logout }) => {
 
-  const { schedule, user: selectedUser, setUser: selectUser, refreshData } = useSchedule()
+  const { classrooms, groups, params: cgParams, setParams: setCgParams, refreshData: refreshCg } = useClassroomsGroups()
+  const { schedule, user: selectedUser, setUser: selectUser, refreshData: refreshSchedule } = useSchedule()
+
+  const refreshData = () => {
+    refreshCg()
+    refreshSchedule()
+  }
+
   useEffect(() => {
     if (selectedUser) {
-      refreshData()
+      refreshSchedule()
     } else if (user.tipo === UserType.Normal) {
       selectUser(user)
     }
@@ -43,7 +51,14 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   useEffect(() => {
     removeMsg()
+    setCgParams(selectedInterval)
   }, [selectedInterval])
+
+  useEffect(() => {
+    if (cgParams) {
+      refreshCg()
+    }
+  }, [cgParams])
 
   const adminContent = (
     <>
@@ -56,12 +71,14 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
             schedule={ schedule }
             user={ selectedUser }
           />
-          { selectedInterval &&
+          { selectedInterval && groups && classrooms &&
             <ScheduleHourSummary
               { ...selectedInterval }
               user={ selectedUser }
-              msg={ groupMsg }
               interval={ schedule[selectedInterval.day][selectedInterval.hour] }
+              groups={ groups }
+              classrooms={ classrooms }
+              msg={ groupMsg }
               onRmGroupPress={ rmGroup }
               onAddPressed={ addGroup }
             /> }
