@@ -7,6 +7,7 @@ async function baseDoRequest<R>(url: string, requestProps: RequestInit = {}): Pr
     ...requestProps,
   })
   const text = await response.text()
+  console.log({ url, requestProps, text })
   return JSON.parse(text) as R
 }
 
