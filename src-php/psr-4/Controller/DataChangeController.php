@@ -180,6 +180,7 @@ FROM horario_lectivo
     JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo 
 WHERE horario_lectivo.dia = :dayID 
   AND horario_lectivo.hora = :hourID
+  AND horario_lectivo.usuario != :userID
   AND aulas.id_aula = :classroomID
   AND aulas.id_aula != 64
   "
@@ -187,6 +188,7 @@ WHERE horario_lectivo.dia = :dayID
     $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
     $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
     $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+    $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
     $query->execute();
 
     $occupiedScheduleResult = $query->fetchAll();
