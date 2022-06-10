@@ -173,8 +173,6 @@ class DataChangeController
         'msg' => 'El grupo ' . $resultGroup['nombre'] . ' no puede tener un aula asignada'
       ]);
 
-    // check if classroom is occupied
-
     $query = $pdo->prepare("
 SELECT horario_lectivo.id_horario, horario_lectivo.usuario, horario_lectivo.grupo, grupos.nombre, horario_lectivo.usuario
 FROM horario_lectivo 
@@ -182,7 +180,6 @@ FROM horario_lectivo
     JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo 
 WHERE horario_lectivo.dia = :dayID 
   AND horario_lectivo.hora = :hourID
-  AND horario_lectivo.usuario != :userID
   AND aulas.id_aula = :classroomID
   AND aulas.id_aula != 64
   "
@@ -190,20 +187,35 @@ WHERE horario_lectivo.dia = :dayID
     $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
     $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
     $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
-    $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
     $query->execute();
-
     $occupiedScheduleResult = $query->fetchAll();
-    $groupsInClassroom = [];
-    foreach ($occupiedScheduleResult as $sheduleRow)
-      if ($body['id-group'] != $sheduleRow['grupo'])
-        $groupsInClassroom[] = $sheduleRow;
 
-    if (!empty($groupsInClassroom))
+    $groupMatch = array_filter($occupiedScheduleResult, fn ($r) => $body['id-group'] === $r['grupo']);
+    $userMatch = array_filter($occupiedScheduleResult, fn ($r) => $body['id-user'] === $r['usuario']);
+
+    if ($groupMatch && $userMatch) {
       return $response->withJson([
-        'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada por el profesor ' . $sheduleRow['usuario'],
-        'groups-in-classroom' => $groupsInClassroom
+        'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada',
+        'groups-in-classroom' => $occupiedScheduleResult
       ]);
+    }
+
+
+    if (!$matchesGroup) {
+      $groupsInClassroom = [];
+      foreach ($occupiedScheduleResult as $sheduleRow) {
+        if ($body['id-group'] != $sheduleRow['grupo']) {
+          $groupsInClassroom[] = $sheduleRow;
+        }
+      }
+
+      if (!empty($groupsInClassroom)) {
+        return $response->withJson([
+          'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada por el profesor ' . $sheduleRow['usuario'],
+          'groups-in-classroom' => $groupsInClassroom
+        ]);
+      }
+    }
 
     $query = $pdo->prepare("
 SELECT horario_lectivo.grupo, grupos.nombre nombre_grupo, horario_lectivo.aula, aulas.nombre nombre_aula 
@@ -246,56 +258,6 @@ WHERE horario_lectivo.usuario = :userID
           ]);
       }
     }
-
-    // check if group is occupied by other user
-
-    $query = $pdo->prepare("
-SELECT COUNT(*)
-FROM horario_lectivo
-    JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo
-WHERE horario_lectivo.dia = :dayID
-  AND horario_lectivo.hora = :hourID
-  AND horario_lectivo.grupo = :groupID
-  AND horario_lectivo.usuario != :userID
-  "
-    );
-    $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
-    $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
-    $query->bindParam('groupID', $body['id-group'], PDO::PARAM_INT);
-    $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
-    $query->execute();
-
-    $groupOccupied = !!$query->fetchColumn();
-    if ($groupOccupied) {
-      // check if group is occupied with the same classroom
-
-      $query = $pdo->prepare("
-SELECT COUNT(*)
-FROM horario_lectivo
-    JOIN grupos ON horario_lectivo.grupo = grupos.id_grupo
-    JOIN aulas ON horario_lectivo.aula = aulas.id_aula
-WHERE horario_lectivo.dia = :dayID
-  AND horario_lectivo.hora = :hourID
-  AND horario_lectivo.grupo = :groupID
-  AND horario_lectivo.usuario != :userID
-  AND aulas.id_aula = :classroomID
-  "
-      );
-      $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
-      $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
-      $query->bindParam('groupID', $body['id-group'], PDO::PARAM_INT);
-      $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
-      $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
-      $query->execute();
-
-      // if group is not occupied with the same classroom
-      // then it is not possible to add the group
-      if (!$query->fetchColumn())
-        return $response->withJson([
-          'msg' => 'No es posible añadir. El grupo seleccionado ya está ocupado'
-        ]);
-    }
-
 
     $query = $pdo->prepare("INSERT INTO horario_lectivo (usuario, dia, hora, grupo, aula) VALUES (:userID, :dayID, :hourID, :groupID, :classroomID)");
     $query->bindParam('userID', $body['id-user'], PDO::PARAM_INT);
