@@ -38,7 +38,7 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
     }
   }, [selectedUser])
 
-  const { msg: groupMsg, removeMsg, occupiedClassrooms, removeOccupiedClassrooms, ...groupsOp } = useGroupsOp()
+  const { msg: groupMsg, removeMsg, coGroups, removeCoGroups, ...groupsOp } = useGroupsOp()
 
   const addGroup: typeof groupsOp.addGroup = (params) => groupsOp.addGroup(params).then(refreshData)
   const rmGroup: typeof groupsOp.rmGroup = (params) => groupsOp.rmGroup(params).then(refreshData)
@@ -64,12 +64,12 @@ const Dashboard: FC<IProp> = ({ user, logout }) => {
 
   const adminContent = (
     <>
-      { selectedInterval && classrooms && occupiedClassrooms &&
+      { selectedInterval && classrooms && coGroups &&
         <OccupiedClassroomModal
           freeClassrooms={ classrooms['Libres'] }
           selectedInterval={ selectedInterval }
-          occupiedClassrooms={ occupiedClassrooms }
-          removeOccupiedClassrooms={ removeOccupiedClassrooms }
+          coGroups={ coGroups }
+          removeOccupiedClassrooms={ removeCoGroups }
           repeatLastAddGroup={ repeatLastAddGroup }
         /> }
       <UserSelectorForm onSelectedUser={ selectUser } />

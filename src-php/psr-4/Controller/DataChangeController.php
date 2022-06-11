@@ -47,62 +47,81 @@ class DataChangeController
     $validation = new Validation();
     $val = $validation->validate([
       [
-        'value' => $body['id-schedule'] ?? null, 'name' => 'El código de horario lectivo', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
-        'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
-      ],
-      [
         'value' => $body['id-classroom'] ?? null, 'name' => 'El código de aula', 'type' => 'int', 'constraints' => ['required' => 1, 'min-val' => 1, 'max-val' => 2147483647],
         'messages' => ['msg-min-val' => 'no es válido', 'msg-max-val' => 'no es válido']
       ]
     ]);
 
-    $data = $val;
+    if (is_array($val)) {
+      return $response->withJson($val);
+    }
 
-    if (!is_array($val)) {
-      $pdo = Connection::getInstance();
+    $pdo = Connection::getInstance();
 
+    $query = $pdo->prepare("SELECT id_aula FROM aulas WHERE id_aula = :classroomID");
+    $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+    $query->execute();
+
+    $resultClassroom = $query->fetch();
+    if (!$resultClassroom) {
+      return $response->withJson(['msg' => 'El aula no existe']);
+    };
+
+    if (!is_array($body['id-schedules'])) {
+      return $response->withStatus(400);
+    }
+
+    foreach ($body['id-schedules'] as $idSchedule) {
       $query = $pdo->prepare("SELECT aula, dia, hora FROM horario_lectivo WHERE id_horario = :scheduleID");
-      $query->bindParam('scheduleID', $body['id-schedule'], PDO::PARAM_INT);
+      $query->bindParam('scheduleID', $idSchedule, PDO::PARAM_INT);
       $query->execute();
 
       $resultSchedule = $query->fetch();
-      if (!$resultSchedule) $data = ['msg' => 'El horario lectivo no existe'];
+      if (!$resultSchedule) {
+        return $response->withJson(['msg' => 'El horario lectivo no existe']);
+      }
 
-      $query = $pdo->prepare("SELECT id_aula FROM aulas WHERE id_aula = :classroomID");
+      if ($resultSchedule['aula'] == $body['id-classroom']) {
+        return $response->withJson(['msg' => 'Seleccione un aula diferente a la actual']);
+      }
+
+      $day = $resultSchedule['dia'];
+      $hour = $resultSchedule['hora'];
+
+      $query = $pdo->prepare("
+       SELECT id_aula, nombre
+       FROM aulas 
+       WHERE id_aula = :classroomID 
+         AND id_aula NOT IN 
+             (SELECT DISTINCT aulas.id_aula 
+              FROM aulas 
+                  JOIN horario_lectivo ON aulas.id_aula = horario_lectivo.aula
+              WHERE horario_lectivo.dia = :dayID 
+                AND horario_lectivo.hora = :hourID 
+                AND aulas.nombre <> 'Sin asignar o sin aula' 
+              ORDER BY aulas.id_aula)"
+      );
       $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+      $query->bindParam('dayID', $day, PDO::PARAM_INT);
+      $query->bindParam('hourID', $hour, PDO::PARAM_INT);
       $query->execute();
 
-      $resultClassroom = $query->fetch();
-      if (!$resultClassroom) $data = ['msg' => 'El aula no existe'];
-
-      if ($resultSchedule && $resultClassroom) {
-
-        $data = ['msg' => 'Seleccione un aula diferente a la actual'];
-        if ($resultSchedule['aula'] != $body['id-classroom']) {
-          $day = $resultSchedule['dia'];
-          $hour = $resultSchedule['hora'];
-
-          $query = $pdo->prepare("SELECT id_aula, nombre FROM aulas WHERE id_aula = :classroomID AND id_aula NOT IN (SELECT DISTINCT aulas.id_aula FROM aulas JOIN horario_lectivo " .
-            "ON aulas.id_aula = horario_lectivo.aula WHERE horario_lectivo.dia = :dayID AND horario_lectivo.hora = :hourID AND aulas.nombre <> 'Sin asignar o sin aula' ORDER BY aulas.id_aula)");
-          $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
-          $query->bindParam('dayID', $day, PDO::PARAM_INT);
-          $query->bindParam('hourID', $hour, PDO::PARAM_INT);
-          $query->execute();
-
-          $result = $query->fetchAll();
-          $data = ['msg' => 'El aula seleccionada no está libre'];
-          if ($result) {
-            $query = $pdo->prepare("UPDATE horario_lectivo SET aula = :classroomID WHERE id_horario = :scheduleID");
-            $query->bindParam('scheduleID', $body['id-schedule'], PDO::PARAM_INT);
-            $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
-            $query->execute();
-            $data = ['success-msg' => 'El aula del horario lectivo ' . $body['id-classroom'] . ' ha sido editada con éxito'];
-          }
-        }
+      $result = $query->fetchAll();
+      if (!$result) {
+        return $response->withJson(['msg' => 'El aula seleccionada no está libre']);
       }
     }
 
-    return $response->withJson($data);
+    foreach ($body['id-schedules'] as $idSchedule) {
+      $query = $pdo->prepare("UPDATE horario_lectivo SET aula = :classroomID WHERE id_horario = :scheduleID");
+      $query->bindParam('scheduleID', $idSchedule, PDO::PARAM_INT);
+      $query->bindParam('classroomID', $body['id-classroom'], PDO::PARAM_INT);
+      $query->execute();
+    }
+
+    return $response->withJson(
+      ['success-msg' => 'El aula del horario lectivo ' . $body['id-classroom'] . ' ha sido editada con éxito']
+    );
   }
 
   public function insertGroupInHour(Request $request, MyResponse $response): ResponseInterface
@@ -181,8 +200,7 @@ FROM horario_lectivo
 WHERE horario_lectivo.dia = :dayID 
   AND horario_lectivo.hora = :hourID
   AND aulas.id_aula = :classroomID
-  AND aulas.id_aula != 64
-  "
+  AND aulas.id_aula != 64"
     );
     $query->bindParam('dayID', $body['day'], PDO::PARAM_INT);
     $query->bindParam('hourID', $body['hour'], PDO::PARAM_INT);
@@ -190,31 +208,20 @@ WHERE horario_lectivo.dia = :dayID
     $query->execute();
     $occupiedScheduleResult = $query->fetchAll();
 
-    $groupMatch = array_filter($occupiedScheduleResult, fn ($r) => $body['id-group'] === $r['grupo']);
-    $userMatch = array_filter($occupiedScheduleResult, fn ($r) => $body['id-user'] === $r['usuario']);
+    $groupIsThere = !!array_filter($occupiedScheduleResult, fn($r) => $body['id-group'] === $r['grupo']);
+    $userIsThere = !!array_filter($occupiedScheduleResult, fn($r) => $body['id-user'] === $r['usuario']);
 
-    if ($groupMatch && $userMatch) {
+    if ($groupIsThere && $userIsThere) {
       return $response->withJson([
-        'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada',
-        'groups-in-classroom' => $occupiedScheduleResult
+        'msg' => 'No es posible añadir. El grupo y el profesor ya están asignados a ese horario',
       ]);
     }
 
-
-    if (!$matchesGroup) {
-      $groupsInClassroom = [];
-      foreach ($occupiedScheduleResult as $sheduleRow) {
-        if ($body['id-group'] != $sheduleRow['grupo']) {
-          $groupsInClassroom[] = $sheduleRow;
-        }
-      }
-
-      if (!empty($groupsInClassroom)) {
-        return $response->withJson([
-          'msg' => 'No es posible añadir. El aula seleccionada ya está ocupada por el profesor ' . $sheduleRow['usuario'],
-          'groups-in-classroom' => $groupsInClassroom
-        ]);
-      }
+    if (!$groupIsThere && !$userIsThere && !empty($occupiedScheduleResult)) {
+      return $response->withJson([
+        'msg' => 'No es posible añadir. El grupo y el profesor no están asignados a ese horario',
+        'groups-in-classroom' => $occupiedScheduleResult
+      ]);
     }
 
     $query = $pdo->prepare("

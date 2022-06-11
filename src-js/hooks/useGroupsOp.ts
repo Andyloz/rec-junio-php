@@ -2,13 +2,13 @@ import { useState } from 'react'
 import { useFetchWith } from './useFetch'
 import Message from '../components/shapes/Message'
 
-export type AddOccupiedClassroomRes = { 'id_horario': number, 'usuario': number, 'grupo': number, 'nombre': string }
+export type AddCoGroups = { 'id_horario': number, 'usuario': number, 'grupo': number, 'nombre': string }
 export type GroupActionMsg = Message<'info' | 'error' | 'warning'>
 export type GroupResponse =
   | { 'msg': string }
   | { 'error': string }
   | { 'success-msg': string }
-  | { msg: string, 'groups-in-classroom': AddOccupiedClassroomRes[] }
+  | { msg: string, 'groups-in-classroom': AddCoGroups[] }
 
 interface AddGroupReq {
   day: number,
@@ -32,8 +32,8 @@ const useGroupsOp = () => {
   const [msg, setMsg] = useState<GroupActionMsg>()
   const removeMsg = () => setMsg(undefined)
 
-  const [occupiedClassrooms, setOccupiedClassrooms] = useState<AddOccupiedClassroomRes[]>()
-  const removeOccupiedClassrooms = () => setOccupiedClassrooms(undefined)
+  const [coGroups, setCoGroups] = useState<AddCoGroups[]>()
+  const removeCoGroups = () => setCoGroups(undefined)
 
   const handleResponse = (res: GroupResponse) => {
     if ('error' in res) {
@@ -43,7 +43,7 @@ const useGroupsOp = () => {
     } else if ('msg' in res) {
       setMsg({ content: res['msg'], type: 'warning' })
       if ('groups-in-classroom' in res) {
-        setOccupiedClassrooms(res['groups-in-classroom'])
+        setCoGroups(res['groups-in-classroom'])
       }
     }
   }
@@ -65,7 +65,7 @@ const useGroupsOp = () => {
     return addGroup(lastParams)
   }
 
-  return { addGroup, rmGroup, msg, removeMsg, occupiedClassrooms, removeOccupiedClassrooms, repeatLastAddGroup }
+  return { addGroup, rmGroup, msg, removeMsg, coGroups, removeCoGroups, repeatLastAddGroup }
 }
 
 export default useGroupsOp

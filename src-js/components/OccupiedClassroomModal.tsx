@@ -9,8 +9,8 @@ import { useFetchWith } from '../hooks/useFetch'
 export interface OccupiedClassroomModalProps {
   freeClassrooms: Classroom[]
   selectedInterval: SelectedInterval
-  occupiedClassrooms: Exclude<ReturnType<typeof useGroupsOp>['occupiedClassrooms'], undefined>
-  removeOccupiedClassrooms: ReturnType<typeof useGroupsOp>['removeOccupiedClassrooms']
+  coGroups: Exclude<ReturnType<typeof useGroupsOp>['coGroups'], undefined>
+  removeOccupiedClassrooms: ReturnType<typeof useGroupsOp>['removeCoGroups']
   repeatLastAddGroup: ReturnType<typeof useGroupsOp>['repeatLastAddGroup']
 }
 
@@ -18,14 +18,14 @@ const OccupiedClassroomModal: FC<OccupiedClassroomModalProps> = (
   {
     freeClassrooms,
     selectedInterval,
-    occupiedClassrooms,
+    coGroups,
     removeOccupiedClassrooms,
     repeatLastAddGroup,
   },
 ) => {
   const [continueOp, setContinueOp] = useState(false)
   const { doRequest: changeClassroom } =
-    useFetchWith.bodyParams<{ 'id-schedule': number, 'id-classroom': number }>('api/edit-classroom-in-hour', {
+    useFetchWith.bodyParams<{ 'id-schedules': number[], 'id-classroom': number }>('api/edit-classroom-in-hour', {
       method: 'PUT',
     })
 
@@ -33,14 +33,29 @@ const OccupiedClassroomModal: FC<OccupiedClassroomModalProps> = (
   const fDay = fDays[day].toLowerCase()
   const fHour = `${ fHours[hour] }`
   const title = `Cambio de aula del ${ fDay } a ${ fHour }`
-  const user = occupiedClassrooms[0]['usuario']
-  const group = occupiedClassrooms[0]['nombre']
+
+  const users = new Set<number>()
+  const groups = new Set<string>()
+  coGroups.forEach(g => users.add(g.usuario))
+  coGroups.forEach(g => groups.add(g.nombre))
+
+  const fUsers = `${ 
+    users.size === 1 ? 'el profesor' : 'los profesores'
+  } ${ 
+    Array.from(users).map(u => `${ u }`).join(', ').replace(/,(?=[^,]*$)/, ' y')
+  }`
+
+  const fGroups = `${ 
+    groups.size === 1 ? 'el grupo' : 'los grupos' 
+  } ${ 
+    Array.from(groups).join(', ').replace(/,(?=[^,]*$)/, ' y') 
+  }`
 
   if (!continueOp) {
 
     const body = (
       <div className='text-center'>
-        <p>Has seleccionado un aula que está siendo utilizada por el profesor { user } con el grupo { group }. Debes
+        <p>Has seleccionado un aula que está siendo utilizada por { fUsers } con { fGroups }. Debes
           cambiarles la clase antes de continuar.</p>
         <p><strong>¿Deseas continuar?</strong></p>
       </div>
@@ -66,16 +81,15 @@ const OccupiedClassroomModal: FC<OccupiedClassroomModalProps> = (
         className='text-center'
         onSubmit={ e => {
           e.preventDefault()
-          const select = e.currentTarget.querySelector('select') as HTMLSelectElement
-          const promises = occupiedClassrooms.map(oc => changeClassroom({
-            'id-schedule': oc['id_horario'],
+          const select = e.currentTarget.querySelector('select')!
+          changeClassroom({
+            'id-schedules': coGroups.map(g => g.id_horario),
             'id-classroom': parseInt(select.value),
-          }))
-          Promise.all(promises)
+          })
             .then(repeatLastAddGroup)
             .then(removeOccupiedClassrooms)
         } }>
-        <p>Selecciona una nueva clase para el grupo { group }: </p>
+        <p>Selecciona una nueva clase para { groups }: </p>
         <select>{
           freeClassrooms.map(({ id, name }) => (
             <option key={ id } value={ id }>{ name }</option>
