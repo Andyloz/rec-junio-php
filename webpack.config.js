@@ -8,7 +8,7 @@ dotenv.config()
 module.exports = {
   entry: path.resolve('./src-js/index'),
   output: {
-    path: path.resolve('./dist'),
+    path: path.resolve('./public'),
     filename: 'bundle.js',
   },
 

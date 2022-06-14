@@ -2,6 +2,7 @@ vendor/
 sample-project/
 .idea/
 node_modules/
+public/
 
 .env
 .env.example
